@@ -1,5 +1,5 @@
 package com.easyrailjourney.EasyRailJourney.models;
 
-public class ScheduleTrainQuotaRuleOverride  {
+public class ScheduleTrainQuotaRuleOverride {
     
 }
