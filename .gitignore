@@ -33,3 +33,60 @@ build/
 .vscode/
 .DS_Store
 .DS_Store
+
+
+
+/* learn decalre custoe validation decalre 5 for practice with understanding */
+/* convert all double to bigdecimal so that exact value will be stored not approximate which cause in double */
+
+/*    // response.setRefundStatus( in rfund 
+        //         refund.getRefundStatus()
+        // ); */
+
+ /* check priotty of refund and fare rule if both piroity are same and active  */
+
+ /* use pagable */
+
+ /* convert them  waitslit and seat allcation stragy to list and choose based on stragty baed on train  */
+
+ /* searhc booking with pnr return each passanger status with booking */
+
+ /*
+  booking doenst have get method 
+  using pnr go to ticket 
+  ticket will check ticket id already exists soo  it will update 
+  based on pnr booking find and fetch pessager and booking seat status 
+  when chart prepared call it will extract all waitlist seat and allocate seat to those passanger to same class
+  chart prepared will return all seat status , booking passanger name - only sow booked passnger 
+
+  */
+
+  /* retry logic on failed like payment success, ticket generateion , refund  */
+
+  /* fix spellings */
+
+  /* make booking better */
+
+  /* when u update put in history  while keeping orginal small*/
+
+
+
+
+
+
+  /*
+  MODEL FIXING 
+  DTOS - 2 hours
+  name - 1 hour
+  CONCURRENCY - 3 hour
+  DATABASE TRANSACTION - 3-4 hours
+  USER METHOD ROLES - 2-3 hours
+  VALIDATION - 1 hour
+  EXCEPTION - 1 hour
+   FETCHING  AND QUERIES
+
+   Refund rule policy reuqired for state wise tran wise etc 
+
+   I am to build this but I wanna know one thing as history table store history of changes now I wanna know even we do small change in entity of these the related history table also store the changes soo at db level I wanna add this thing like through procedure 
+   */
+
