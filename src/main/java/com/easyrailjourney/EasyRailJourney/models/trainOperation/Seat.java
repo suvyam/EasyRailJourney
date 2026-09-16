@@ -7,6 +7,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -15,6 +17,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(
+    name = "seat",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_seat_coach_seat_number",
+            columnNames = {"coach_id", "seat_number"}
+        )
+    }
+)
+
 public class Seat extends BaseModel {
 
     @NotBlank(message = "Seat number is required")

@@ -10,6 +10,8 @@ import com.easyrailjourney.EasyRailJourney.Dtos.RoleAuthorityDtos.RoleRequestDto
 import com.easyrailjourney.EasyRailJourney.models.roleAndAuthoritys.Role;
 import com.easyrailjourney.EasyRailJourney.repository.RoleAndAuthorityRepos.RoleRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class RoleService {
 
@@ -19,6 +21,9 @@ public class RoleService {
         this.roleRepo = roleRepo;
     }
 
+
+
+    @Transactional 
     public Role createRole(RoleRequestDto dto) {
 
         if (roleRepo.existsByName(dto.getName())) {
@@ -36,6 +41,7 @@ public class RoleService {
         return roleRepo.findAll();
     }
 
+
     public Role getRoleById(Long id) {
 
         return roleRepo.findById(id)
@@ -52,6 +58,9 @@ public class RoleService {
                                 "Role not found: " + name));
     }
 
+
+
+    @Transactional 
     public Role updateRole(Long id, RoleRequestDto dto) {
 
         Role role = getRoleById(id);
@@ -67,6 +76,8 @@ public class RoleService {
         return roleRepo.save(role);
     }
 
+  
+    @Transactional 
     public void deleteRole(Long id) {
 
         Role role = getRoleById(id);

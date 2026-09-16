@@ -1,6 +1,7 @@
 package com.easyrailjourney.EasyRailJourney.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,7 @@ public class TrainTypeController {
 
     // CREATE
     @PostMapping
+        @PreAuthorize("hasAuthority('ADD_TRAIN_TYPE')")
     public ResponseEntity<GeneralTrainTypeRespDto> createTrainType(
             @Valid @RequestBody TrainTypeReqDto dto) {
 
@@ -38,6 +40,7 @@ public class TrainTypeController {
 
     // GET ALL
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_TRAIN_TYPE')")
     public ResponseEntity<GeneralTrainTypeRespDto> getAllTrainTypes() {
 
         return ResponseEntity.ok(
@@ -47,6 +50,7 @@ public class TrainTypeController {
 
     // GET BY ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('READ_TRAIN_TYPE')")
     public ResponseEntity<GeneralTrainTypeRespDto> getTrainTypeById(
             @PathVariable Long id) {
 
@@ -57,6 +61,7 @@ public class TrainTypeController {
 
     // UPDATE
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_TRAIN_TYPE')")
     public ResponseEntity<GeneralTrainTypeRespDto> updateTrainType(
             @Valid @RequestBody TrainTypeUpdateReqDto dto) {
 
@@ -67,6 +72,7 @@ public class TrainTypeController {
 
     // DELETE
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_TRAIN_TYPE')")
     public ResponseEntity<GeneralTrainTypeRespDto> deleteTrainType(
             @Valid @RequestBody TrainTypeDeleteReqDto dto) {
 

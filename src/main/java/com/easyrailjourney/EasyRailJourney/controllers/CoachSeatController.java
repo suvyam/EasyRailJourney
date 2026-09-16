@@ -1,6 +1,7 @@
 package com.easyrailjourney.EasyRailJourney.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +32,7 @@ public class CoachSeatController {
 
     // CREATE / ASSIGN
     @PostMapping
+        @PreAuthorize ("hasAuthority('ASSIGN_SEAT_TO_COACH')")
     public ResponseEntity<CoachSeatRespDto > assignSeats(
             @Valid @RequestBody AssignCoachSeatReqDto dto) {
 
@@ -41,6 +43,7 @@ public class CoachSeatController {
 
     // GET ALL SEATS OF COACH
     @GetMapping("/coach/{coachId}")
+    @PreAuthorize ("hasAuthority('READ_SEAT')")
     public ResponseEntity<CoachSeatRespDto> getSeatsByCoachId(
             @PathVariable Long coachId) {
 
@@ -51,6 +54,7 @@ public class CoachSeatController {
     
     // GET COACH OF SEAT
     @GetMapping("/seat/{seatId}")
+    @PreAuthorize ("hasAuthority('READ_SEAT')")
     public ResponseEntity<CoachSeatRespDto> getCoachBySeat(
             @PathVariable Long seatId) {
 
@@ -61,6 +65,7 @@ public class CoachSeatController {
 
     // UPDATE
     @PutMapping("/{coachId}")
+    @PreAuthorize ("hasAuthority('UPDATE_COACH_SEAT')")
     public ResponseEntity<CoachSeatRespDto> updateSeats(
             @PathVariable Long coachId,
             @Valid @RequestBody AssignCoachSeatReqDto dto) {
@@ -72,6 +77,7 @@ public class CoachSeatController {
 
     // DELETE / UNASSIGN
     @DeleteMapping("/{coachId}/seat/{seatId}")
+    @PreAuthorize ("hasAuthority('REMOVE_COACH_SEAT')")
     public ResponseEntity<String> removeSeatFromCoach(
             @PathVariable Long coachId,
             @PathVariable Long seatId) {

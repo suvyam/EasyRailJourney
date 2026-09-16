@@ -20,7 +20,6 @@ import lombok.Setter;
 @Getter 
 @Setter 
 @Table(name = "fare_rule")
-
 public class FareRule extends BaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY)

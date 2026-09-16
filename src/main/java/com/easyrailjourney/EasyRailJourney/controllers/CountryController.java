@@ -1,6 +1,7 @@
 package com.easyrailjourney.EasyRailJourney.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ public class CountryController {
     }
 
     @PostMapping
+        @PreAuthorize ("hasAuthority('ADD_COUNTRY')")
     public ResponseEntity<GeneralCountryRespDto> createCountry(
             @Valid @RequestBody CountryCreateReqDto dto) {
 
@@ -48,6 +50,7 @@ public class CountryController {
     }
 
     @GetMapping
+    @PreAuthorize ("hasAuthority('READ_COUNTRY')")
     public ResponseEntity<GeneralCountryRespDto> getAllCountries() {
 
         GeneralCountryRespDto response = new GeneralCountryRespDto();
@@ -65,6 +68,7 @@ public class CountryController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize ("hasAuthority('READ_COUNTRY')")
     public ResponseEntity<GeneralCountryRespDto> getCountry(
             @PathVariable Long id) {
 
@@ -83,6 +87,7 @@ public class CountryController {
     }
 
     @PutMapping
+    @PreAuthorize ("hasAuthority('UPDATE_COUNTRY')")
     public ResponseEntity<GeneralCountryRespDto> updateCountry(
             @Valid @RequestBody CountryUpdateReqDto dto) {
 
@@ -102,6 +107,7 @@ public class CountryController {
     }
 
     @DeleteMapping
+    @PreAuthorize ("hasAuthority('DELETE_COUNTRY')")
     public ResponseEntity<GeneralCountryRespDto> deleteCountry(
             @Valid @RequestBody CountryDeleteReqDto dto) {
 
@@ -121,6 +127,7 @@ public class CountryController {
     }
 
     @DeleteMapping("/delete-permanently/{id}")
+    @PreAuthorize ("hasAuthority('DELETE_COUNTRY')")
     public ResponseEntity<GeneralCountryRespDto> deletePermanently(
             @PathVariable Long id) {
 

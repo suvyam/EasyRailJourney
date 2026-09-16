@@ -1,12 +1,12 @@
 spring:
   application:
     name: EasyRailJourney
+
   mail:
     host: smtp.gmail.com
     port: 587
-    username: suvyam.997@gmail.com
-    password: REMOVED_SECRET
-
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -18,15 +18,20 @@ spring:
           writetimeout: 5000
 
   datasource:
-    url: jdbc:mysql://localhost:3306/EasyRailJourney
-    username: root
-    password: Password
-  
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        formate-sql: true
-  
+        format-sql: true
 
+jwt:
+  secret: ${JWT_SECRET}
+  issuer: easyRailJourney
+  expiry: 168
+  access-expiry: 8
+  refresh-expiry: 8

@@ -59,7 +59,7 @@ public class TrainTypeService {
     }
 
     // GET ALL
-    @Transactional(readOnly = true)
+    @Transactional
     public GeneralTrainTypeRespDto getAllTrainTypes() {
 
         GeneralTrainTypeRespDto response = new GeneralTrainTypeRespDto();
@@ -84,7 +84,7 @@ public class TrainTypeService {
     }
 
     // GET BY ID
-    @Transactional(readOnly = true)
+    @Transactional
     public GeneralTrainTypeRespDto getTrainTypeById(Long id) {
 
         GeneralTrainTypeRespDto response = new GeneralTrainTypeRespDto();

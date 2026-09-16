@@ -4,11 +4,12 @@ package com.easyrailjourney.EasyRailJourney.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.AccountDeleteReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.PassengerUpdateReqstDto;
-import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.UserRegisterReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.UserRoleReqstDto;
 import com.easyrailjourney.EasyRailJourney.models.roleAndAuthoritys.Role;
 import com.easyrailjourney.EasyRailJourney.models.users.Users;
@@ -16,83 +17,28 @@ import com.easyrailjourney.EasyRailJourney.repository.RoleAndAuthorityRepos.Auth
 import com.easyrailjourney.EasyRailJourney.repository.RoleAndAuthorityRepos.RoleRepo;
 import com.easyrailjourney.EasyRailJourney.repository.UserRepo.UserRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserService {
 
     private final UserRepo userRepo;
     private final AuthoritiesRepo authoritiesRepo;
     private final RoleRepo roleRepo;
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(
             RoleRepo roleRepo,
             UserRepo userRepo,
-            AuthoritiesRepo authoritiesRepo) {
+            AuthoritiesRepo authoritiesRepo,
+            PasswordEncoder passwordEncoder) {
 
         this.roleRepo = roleRepo;
         this.userRepo = userRepo;
         this.authoritiesRepo = authoritiesRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    // REGISTER USER
-    public Users registerUser(UserRegisterReqDto reqDto) throws Exception {
-
-        Optional<Users> optionalUser =
-                userRepo.findByEmailAndIsDeleted(
-                        reqDto.getEmail(),
-                        false
-                );
-
-        if (optionalUser.isPresent()) {
-            throw new Exception("Already exist user");
-        }
-
-        // CHECK PASSWORD
-        if (reqDto.getPassword() == null ||
-                reqDto.getConfirmPassword() == null) {
-
-            throw new Exception("Password and confirm password are required");
-        }
-
-        if (!reqDto.getPassword()
-                .equals(reqDto.getConfirmPassword())) {
-
-            throw new Exception("Password not match");
-        }
-
-        // CHECK PROFILE NAME
-        if (reqDto.getProfileName() == null ||
-                reqDto.getProfileName().isBlank()) {
-
-            throw new Exception("Profile name is required");
-        }
-
-        // CHECK PROFILE NAME ALREADY EXISTS
-        Optional<Users> profileNameUser =
-                userRepo.findByProfileName(
-                        reqDto.getProfileName()
-                );
-
-        if (profileNameUser.isPresent()) {
-            throw new Exception("Profile name already exists");
-        }
-
-        Users user = new Users();
-
-        user.setFullName(reqDto.getFullName());
-        user.setProfileName(reqDto.getProfileName());
-        user.setDOB(reqDto.getDOB());
-        user.setEmail(reqDto.getEmail());
-        user.setGender(reqDto.getGender());
-        user.setPassword(reqDto.getPassword());
-        user.setPhoneNumber(reqDto.getPhoneNumber());
-        user.setDeleted(reqDto.isDeleted());
-
-        System.err.println("First Change");
-
-        System.err.println("Second Change");
-
-        return userRepo.save(user);
-    }
 
 
     // GET USER
@@ -105,6 +51,7 @@ public class UserService {
 
 
     // SEARCH USER
+
     public List<Users> searchUser(
             Long id,
             String phoneNumber,
@@ -123,6 +70,7 @@ public class UserService {
 
 
     // UPDATE USER
+        @Transactional
     public boolean updateUser(
             PassengerUpdateReqstDto reqstDto) throws Exception {
 
@@ -179,8 +127,12 @@ public class UserService {
                 throw new Exception("Password not match");
             }
 
+
+            String passwod = passwordEncoder.encode(reqstDto.getPassword());
+
             // BCrypt password hashing should be done here
-            user.setPassword(reqstDto.getPassword());
+
+            user.setPassword(passwod);
         }
 
         if (reqstDto.getPhoneNumber() != null) {
@@ -194,6 +146,7 @@ public class UserService {
 
 
     // DELETE SOFT USER
+    @Transactional
     public boolean deleteUser(
             AccountDeleteReqDto reqDto) throws Exception {
 
@@ -218,6 +171,8 @@ public class UserService {
 
 
     // DELETE PERMANENTLY USER
+    @Transactional
+    @PreAuthorize ("hasAuthority('DELETE_USER_PERMANENTLY')")
     public boolean deleteUserPermanently(
             AccountDeleteReqDto reqDto) throws Exception {
 
@@ -238,7 +193,8 @@ public class UserService {
     }
 
 
-    // ADD ROLE USER
+
+    @Transactional
     public boolean addUserRole(
             UserRoleReqstDto reqstDto) throws Exception {
 
@@ -269,7 +225,7 @@ public class UserService {
     }
 
 
-    // REMOVE ROLE USER
+    @Transactional
     public boolean removeUserRole(
             UserRoleReqstDto reqstDto) throws Exception {
 

@@ -4,6 +4,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,7 @@ public class RefundRuleController {
     private final RefundRuleService refundRuleService;
 
     @PostMapping
+      @PreAuthorize("hasAuthority('REFUND_RULE_CREATE')")
     public ResponseEntity<RefundRuleRespDto> createRule(
             @Valid @RequestBody RefundRuleReqDto request) {
 
@@ -47,6 +49,7 @@ public class RefundRuleController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('REFUND_RULE_READ')")
     public ResponseEntity<List<RefundRuleRespDto>> getAllRules() {
 
         return ResponseEntity.ok(
@@ -55,6 +58,7 @@ public class RefundRuleController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('REFUND_RULE_READ')")
     public ResponseEntity<RefundRuleRespDto> getRuleById(
             @PathVariable Long id) {
 
@@ -64,6 +68,7 @@ public class RefundRuleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('REFUND_RULE_UPDATE')")
     public ResponseEntity<RefundRuleRespDto> updateRule(
             @PathVariable Long id,
             @Valid @RequestBody RefundRuleReqDto request) {
@@ -74,6 +79,7 @@ public class RefundRuleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('REFUND_RULE_DELETE')")
     public ResponseEntity<String> deleteRule(
             @PathVariable Long id) {
 

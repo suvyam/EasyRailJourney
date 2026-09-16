@@ -15,6 +15,8 @@ import com.easyrailjourney.EasyRailJourney.repository.trainRepos.CoachRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.SeatRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.SeatTypeRepo;
 
+import jakarta.transaction.Transactional;
+
 
 @Service
 public class SeatService {
@@ -34,6 +36,7 @@ public class SeatService {
     }
 
     // CREATE
+   @Transactional 
     public Seat createSeat(
             SeatCreateReqDto reqDto) throws Exception {
 
@@ -92,6 +95,7 @@ public class SeatService {
     }
 
     // UPDATE
+    @Transactional 
     public boolean updateSeat(
             SeatUpdateReqDto reqDto) throws Exception {
 
@@ -134,6 +138,7 @@ public class SeatService {
     }
 
     // SOFT DELETE
+    @Transactional 
     public boolean deleteSeat(
             SeatDeleteReqDto reqDto) throws Exception {
 
@@ -147,6 +152,7 @@ public class SeatService {
     }
 
     // PERMANENT DELETE
+    @Transactional 
     public boolean deleteSeatPermanently(
             SeatDeleteReqDto reqDto) throws Exception {
 
@@ -156,6 +162,8 @@ public class SeatService {
 
         return true;
     }
+
+
 
     private Seat findSeatForDelete(
             SeatDeleteReqDto reqDto) throws Exception {

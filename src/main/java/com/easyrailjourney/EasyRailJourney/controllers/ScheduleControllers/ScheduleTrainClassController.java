@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.controllers.ScheduleControllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,8 @@ import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrainClassSeat;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.ScheduleTrainClassService;
 
+import jakarta.validation.Valid;
+
 
 @RestController 
 @RequestMapping ("/class")
@@ -36,9 +39,10 @@ public class ScheduleTrainClassController {
 
      // CREATE SCHEDULE TRAIN CLASS----
     @PostMapping
+    @PreAuthorize ("hasAuthority('CREATE_SCHEDULE_TRAIN_CLASS')")
     public ResponseEntity<GeneralScheduleTrainClassRespDto>
             createScheduleTrainClass(
-                    @RequestBody ScheduleTrainClassCreateReqDto reqDto) {
+                  @Valid  @RequestBody ScheduleTrainClassCreateReqDto reqDto) {
 
         GeneralScheduleTrainClassRespDto respDto =
                 new GeneralScheduleTrainClassRespDto();
@@ -64,6 +68,7 @@ public class ScheduleTrainClassController {
 
     // GET ALL SCHEDULE TRAIN CLASSES----
     @GetMapping
+    @PreAuthorize ("hasAuthority('READ_SCHEDULE_TRAIN_CLASS')")
     public ResponseEntity<GeneralScheduleTrainClassRespDto>
             getAllScheduleTrainClasses() {
 
@@ -91,6 +96,7 @@ public class ScheduleTrainClassController {
 
     // SEARCH SCHEDULE TRAIN CLASS----
     @GetMapping("/search")
+    @PreAuthorize ("hasAuthority('READ_SCHEDULE_TRAIN_CLASS')")
     public ResponseEntity<GeneralScheduleTrainClassRespDto>
             searchScheduleTrainClass(
                     @RequestParam(required = false) Long id,
@@ -132,9 +138,10 @@ public class ScheduleTrainClassController {
 
     // UPDATE SCHEDULE TRAIN CLASS----
     @PutMapping
+    @PreAuthorize ("hasAuthority('UPDATE_SCHEDULE_TRAIN_CLASS')")
     public ResponseEntity<GeneralScheduleTrainClassRespDto>
             updateScheduleTrainClass(
-                    @RequestBody ScheduleTrainClassUpdateReqDto reqDto) {
+                @Valid  @RequestBody ScheduleTrainClassUpdateReqDto reqDto) {
 
         GeneralScheduleTrainClassRespDto respDto =
                 new GeneralScheduleTrainClassRespDto();
@@ -149,6 +156,7 @@ public class ScheduleTrainClassController {
 
                 respDto.setMessage("Successfully Updated");
                 respDto.setResponseStatus(ResponseStatus.SUCCESS);
+                ResponseEntity.ok().body(respDto);
 
             } else {
 
@@ -168,9 +176,10 @@ public class ScheduleTrainClassController {
 
     // SOFT DELETE SCHEDULE TRAIN CLASS----
     @DeleteMapping
+    @PreAuthorize ("hasAuthority('DELETE_SCHEDULE_TRAIN_CLASS')")
     public ResponseEntity<GeneralScheduleTrainClassRespDto>
             deleteScheduleTrainClass(
-                    @RequestBody ScheduleTrainClassDeleteReqDto reqDto) {
+                @Valid   @RequestBody ScheduleTrainClassDeleteReqDto reqDto) {
 
         GeneralScheduleTrainClassRespDto respDto =
                 new GeneralScheduleTrainClassRespDto();
@@ -207,9 +216,10 @@ public class ScheduleTrainClassController {
 
     // PERMANENT DELETE SCHEDULE TRAIN CLASS----
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize ("hasAuthority('DELETE_SCHEDULE_TRAIN_CLASS')")
     public ResponseEntity<GeneralScheduleTrainClassRespDto>
             deleteScheduleTrainClassPermanently(
-                    @RequestBody ScheduleTrainClassDeleteReqDto reqDto) {
+                @Valid  @RequestBody ScheduleTrainClassDeleteReqDto reqDto) {
 
         GeneralScheduleTrainClassRespDto respDto =
                 new GeneralScheduleTrainClassRespDto();
@@ -246,6 +256,7 @@ public class ScheduleTrainClassController {
 
     // GET SCHEDULE TRAIN CLASS SEATS----
     @GetMapping("/{scheduleTrainClassId}/seats")
+    @PreAuthorize ("hasAuthority('READ_SCHEDULE_TRAIN_CLASS')")
     public ResponseEntity<GeneralScheduleTrainClassSeatRespDto>
             getSeatsByScheduleTrainClass(
                     @PathVariable Long scheduleTrainClassId) {

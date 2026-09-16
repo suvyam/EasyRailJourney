@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.easyrailjourney.EasyRailJourney.enums.Trains.TrainStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrain;
 
 
@@ -67,16 +68,18 @@ public interface  ScheduleTrainRepo extends  JpaRepository<ScheduleTrain, Long> 
                 AND departureStop.station.id = :departureStationId
                 AND destinationStop.station.id = :destinationStationId
                 AND departureStop.stationSequence < destinationStop.stationSequence
+                AND :status IS NOT NULL AND s.status = :status
             )
         )
         AND s.isDeleted = :isDeleted
     """)
-    List<ScheduleTrain> searchSchedule(
-        @Param("id") Long id,
-        @Param("trainId") Long trainId,
-        @Param("departureStationId") Long departureStationId,
-        @Param("destinationStationId") Long destinationStationId,
-        @Param("isDeleted") boolean isDeleted
-    );
+   List<ScheduleTrain> searchSchedule(
+        Long id,
+        Long trainId,
+        Long departureStationId,
+        Long destinationStationId,
+        TrainStatus status,
+        boolean isDeleted
+   );
     
 }

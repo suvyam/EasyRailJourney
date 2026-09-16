@@ -12,6 +12,8 @@ import com.easyrailjourney.EasyRailJourney.models.States;
 import com.easyrailjourney.EasyRailJourney.repository.CountryRepo;
 import com.easyrailjourney.EasyRailJourney.repository.StateRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class StateService {
 
@@ -23,6 +25,7 @@ public class StateService {
         this.countryRepo = countryRepo;
     }
 
+       @Transactional
     public States createState(StateCreateReqDto dto) {
 
         Country country = countryRepo.findById(dto.getCountryId())
@@ -46,6 +49,7 @@ public class StateService {
                 .orElseThrow(() -> new RuntimeException("State not found"));
     }
 
+    @Transactional
     public States updateState(StateUpdateReqDto dto) {
 
         States state = stateRepo.findByIdAndIsDeleted(dto.getId(), false)
@@ -60,6 +64,7 @@ public class StateService {
         return stateRepo.save(state);
     }
 
+    @Transactional
     public boolean deleteState(StateDeleteReqDto dto) {
 
         States state = stateRepo.findByIdAndIsDeleted(dto.getId(), false)
@@ -72,6 +77,7 @@ public class StateService {
         return true;
     }
 
+    @Transactional
     public boolean deleteStatePermanently(Long id) {
 
         States state = stateRepo.findById(id)

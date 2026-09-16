@@ -16,8 +16,8 @@ public class StationUpdateReqDto {
 
     private Long city;
 
-    private Float latitude;
-    private Float longitude;
+    private String latitude;
+    private String longitude;
 
     private StationStatus status;
 }

@@ -1,13 +1,22 @@
 package com.easyrailjourney.EasyRailJourney.controllers;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.easyrailjourney.EasyRailJourney.Dtos.CityDtos.*;
-import com.easyrailjourney.EasyRailJourney.services.CityService;
+import com.easyrailjourney.EasyRailJourney.Dtos.CityDtos.CityCreateReqDto;
+import com.easyrailjourney.EasyRailJourney.Dtos.CityDtos.CityDeleteReqDto;
+import com.easyrailjourney.EasyRailJourney.Dtos.CityDtos.CityUpdateReqDto;
+import com.easyrailjourney.EasyRailJourney.Dtos.CityDtos.GeneralCityRespDto;
 import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
+import com.easyrailjourney.EasyRailJourney.services.CityService;
 
 import jakarta.validation.Valid;
 
@@ -22,6 +31,7 @@ public class CityController {
     }
 
     @PostMapping
+         @PreAuthorize ("hasAuthority('ADD_CITY')")
     public ResponseEntity<GeneralCityRespDto> createCity(
             @Valid @RequestBody CityCreateReqDto dto) {
 
@@ -39,6 +49,7 @@ public class CityController {
     }
 
     @GetMapping
+    @PreAuthorize ("hasAuthority('READ_CITY')")
     public ResponseEntity<GeneralCityRespDto> getAllCities() {
 
         GeneralCityRespDto response = new GeneralCityRespDto();
@@ -55,6 +66,7 @@ public class CityController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize ("hasAuthority('READ_CITY')")
     public ResponseEntity<GeneralCityRespDto> getCity(
             @PathVariable Long id) {
 
@@ -72,6 +84,7 @@ public class CityController {
     }
 
     @PutMapping
+    @PreAuthorize ("hasAuthority('UPDATE_CITY')")
     public ResponseEntity<GeneralCityRespDto> updateCity(
             @Valid @RequestBody CityUpdateReqDto dto) {
 
@@ -89,6 +102,7 @@ public class CityController {
     }
 
     @DeleteMapping
+    @PreAuthorize ("hasAuthority('DELETE_CITY')")
     public ResponseEntity<GeneralCityRespDto> deleteCity(
             @Valid @RequestBody CityDeleteReqDto dto) {
 
@@ -107,6 +121,7 @@ public class CityController {
     }
 
     @DeleteMapping("/delete-permanently/{id}")
+    @PreAuthorize ("hasAuthority('DELETE_CITY')")
     public ResponseEntity<GeneralCityRespDto> deletePermanently(
             @PathVariable Long id) {
 

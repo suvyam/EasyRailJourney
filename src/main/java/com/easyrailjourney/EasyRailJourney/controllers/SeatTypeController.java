@@ -4,6 +4,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,10 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.SeatType.*;
+import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.SeatType.SeatTypeReqDto;
+import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.SeatType.SeatTypeRespDto;
 import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.SeatType;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.SeatTypeService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/seat-type")
@@ -31,8 +35,9 @@ public class SeatTypeController {
 
     // CREATE SEAT TYPE----
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_SEAT_TYPE')")
     public ResponseEntity<SeatTypeRespDto> createSeatType(
-            @RequestBody SeatTypeReqDto reqDto) {
+           @Valid  @RequestBody SeatTypeReqDto reqDto) {
 
                 SeatTypeRespDto respDto =
                 new SeatTypeRespDto();
@@ -57,6 +62,7 @@ public class SeatTypeController {
 
     // GET ALL SEAT TYPES----
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_SEAT_TYPE')")
     public ResponseEntity<SeatTypeRespDto> getAllSeatTypes() {
 
         SeatTypeRespDto respDto =
@@ -82,6 +88,7 @@ public class SeatTypeController {
 
     // SEARCH SEAT TYPE----
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_SEAT_TYPE')")
     public ResponseEntity<SeatTypeRespDto> searchSeatType(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String typeCode,
@@ -123,8 +130,9 @@ public class SeatTypeController {
 
     // UPDATE SEAT TYPE----
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_SEAT_TYPE')")
     public ResponseEntity<SeatTypeRespDto> updateSeatType(
-            @RequestBody SeatTypeReqDto reqDto) {
+        @Valid  @RequestBody SeatTypeReqDto reqDto) {
 
                 SeatTypeRespDto respDto =
                 new SeatTypeRespDto();
@@ -160,8 +168,9 @@ public class SeatTypeController {
 
     // SOFT DELETE SEAT TYPE----
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_SEAT_TYPE')")
     public ResponseEntity<SeatTypeRespDto> deleteSeatType(
-            @RequestBody SeatTypeReqDto reqDto) {
+        @Valid  @RequestBody SeatTypeReqDto reqDto) {
 
                 SeatTypeRespDto respDto =
                 new SeatTypeRespDto();
@@ -197,9 +206,10 @@ public class SeatTypeController {
 
     // DELETE PERMANENTLY SEAT TYPE----
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_SEAT_TYPE')")
     public ResponseEntity<SeatTypeRespDto>
             deleteSeatTypePermanently(
-                    @RequestBody SeatTypeReqDto reqDto) {
+                @Valid   @RequestBody SeatTypeReqDto reqDto) {
 
                         SeatTypeRespDto respDto =
                 new SeatTypeRespDto();

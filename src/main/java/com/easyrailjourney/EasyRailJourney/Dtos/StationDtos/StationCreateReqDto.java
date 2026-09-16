@@ -21,10 +21,10 @@ public class StationCreateReqDto {
 
 
     @NotNull (message="Latitude is required")
-    private Float latitude;
+    private String latitude;
 
     @NotNull (message="Latitude is required")
-    private Float longitude;
+    private String longitude;
 
     private StationStatus status;
 }

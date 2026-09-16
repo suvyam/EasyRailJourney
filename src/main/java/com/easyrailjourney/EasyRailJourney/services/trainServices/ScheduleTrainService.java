@@ -51,6 +51,7 @@ public class ScheduleTrainService {
     // CREATE
     // =====================================================
 
+    @Transactional 
     public ScheduleRespDto createSchedule(
             ScheduleCreateReqDto reqDto) throws Exception {
 
@@ -59,12 +60,6 @@ public class ScheduleTrainService {
         Train train = trainRepo.findById(reqDto.getTrainId())
                 .orElseThrow(() -> new Exception("Train not found"));
 
-        if (scheduleRepository
-                .searchSchedule(train.getId(), null, null, null, false)
-                .size() > 0) {
-
-            throw new Exception("train already scheduled");
-        }
 
         Station departureStation =
                 stationRepo.findById(reqDto.getDepartureStationId())
@@ -108,13 +103,13 @@ public class ScheduleTrainService {
         schedule.setDepartureStation(departureStation);
         schedule.setDestinationStation(destinationStation);
         schedule.setJourneyStartTime(reqDto.getJourneyStartTime());
-        schedule.setJourneyEstimatedEndTime(
-                reqDto.getJourneyEstimatedEndTime());
+        schedule.setJourneyEstimatedEndTime(reqDto.getJourneyEstimatedEndTime());
         schedule.setStatus(reqDto.getStatus());
 
         scheduleRepository.save(schedule);
 
         List<ScheduleTrain> scheduleTrains = new ArrayList<>();
+        
         scheduleTrains.add(schedule);
 
         return wrapper(scheduleTrains).get(0);
@@ -144,12 +139,13 @@ public class ScheduleTrainService {
             TrainStatus status,
             boolean isDeleted) {
 
-        List<ScheduleTrain> list =
+                List<ScheduleTrain> list =
                 scheduleRepository.searchSchedule(
                         id,
                         trainId,
                         departureStationId,
                         destinationStationId,
+                        status,
                         isDeleted
                 );
 
@@ -310,6 +306,7 @@ public class ScheduleTrainService {
     // WRAPPER
     // =====================================================
 
+@Transactional 
     public List<ScheduleRespDto> wrapper(
             List<ScheduleTrain> req) {
 

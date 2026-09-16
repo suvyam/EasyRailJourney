@@ -4,6 +4,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,8 @@ import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.Coach;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.CoachService;
 
+import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/coach")
@@ -34,8 +37,9 @@ public class CoachController {
 
     // CREATE COACH
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_COACH')")
     public ResponseEntity<GeneralCoachRespDto> createCoach(
-            @RequestBody CoachCreateReqDto reqDto) {
+            @Valid @RequestBody CoachCreateReqDto reqDto) {
 
         GeneralCoachRespDto respDto =
                 new GeneralCoachRespDto();
@@ -64,6 +68,7 @@ public class CoachController {
 
     // GET ALL
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_COACH')")
     public ResponseEntity<GeneralCoachRespDto> getAllCoaches() {
 
         GeneralCoachRespDto respDto =
@@ -93,6 +98,7 @@ public class CoachController {
 
     // SEARCH
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_COACH')")
     public ResponseEntity<GeneralCoachRespDto> searchCoach(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String coachNumber,
@@ -139,8 +145,9 @@ public class CoachController {
 
     // UPDATE
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_COACH')")
     public ResponseEntity<GeneralCoachRespDto> updateCoach(
-            @RequestBody CoachUpdateReqDto reqDto) {
+        @Valid   @RequestBody CoachUpdateReqDto reqDto) {
 
         GeneralCoachRespDto respDto =
                 new GeneralCoachRespDto();
@@ -183,8 +190,9 @@ public class CoachController {
 
     // SOFT DELETE
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_COACH')")
     public ResponseEntity<GeneralCoachRespDto> deleteCoach(
-            @RequestBody CoachDeleteReqDto reqDto) {
+        @Valid   @RequestBody CoachDeleteReqDto reqDto) {
 
         GeneralCoachRespDto respDto =
                 new GeneralCoachRespDto();
@@ -230,9 +238,10 @@ public class CoachController {
 
     // PERMANENT DELETE
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_COACH')")
     public ResponseEntity<GeneralCoachRespDto>
             deleteCoachPermanently(
-                    @RequestBody CoachDeleteReqDto reqDto) {
+                @Valid   @RequestBody CoachDeleteReqDto reqDto) {
 
         GeneralCoachRespDto respDto =
                 new GeneralCoachRespDto();

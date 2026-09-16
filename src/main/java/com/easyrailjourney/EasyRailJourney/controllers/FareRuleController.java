@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +19,9 @@ import com.easyrailjourney.EasyRailJourney.Dtos.Fares.FareRuleRespDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.Fares.FareRuleUpdateReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.Fares.GeneralFareRuleRespDto;
 import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
-import com.easyrailjourney.EasyRailJourney.models.FareRule;
 import com.easyrailjourney.EasyRailJourney.services.FareService.FareRule.FareRuleService;
+
+import jakarta.validation.Valid;
 
 
 
@@ -35,8 +37,9 @@ public class FareRuleController {
 
     // CREATE
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_FARE_RULE')")
     public ResponseEntity<GeneralFareRuleRespDto> createFareRule(
-            @RequestBody FareRuleCreateReqDto reqDto) {
+           @Valid  @RequestBody FareRuleCreateReqDto reqDto) {
 
         GeneralFareRuleRespDto respDto =
                 new GeneralFareRuleRespDto();
@@ -60,6 +63,7 @@ public class FareRuleController {
 
     // GET ALL
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_FARE_RULE')")
     public ResponseEntity<GeneralFareRuleRespDto> getAllFareRules() {
 
         GeneralFareRuleRespDto respDto =
@@ -84,6 +88,7 @@ public class FareRuleController {
 
     // SEARCH
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_FARE_RULE')")
     public ResponseEntity<GeneralFareRuleRespDto> searchFareRule(
             @RequestParam(required = false) Long trainId,
             @RequestParam(required = false) Long stateId,
@@ -119,8 +124,9 @@ public class FareRuleController {
 
     // UPDATE
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_FARE_RULE')")
     public ResponseEntity<GeneralFareRuleRespDto> updateFareRule(
-            @RequestBody FareRuleUpdateReqDto reqDto) {
+        @Valid  @RequestBody FareRuleUpdateReqDto reqDto) {
 
         GeneralFareRuleRespDto respDto =
                 new GeneralFareRuleRespDto();
@@ -152,8 +158,9 @@ public class FareRuleController {
 
     // SOFT DELETE
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_FARE_RULE')")
     public ResponseEntity<GeneralFareRuleRespDto> deleteFareRule(
-            @RequestBody FareRuleDeleteReqDto reqDto) {
+        @Valid  @RequestBody FareRuleDeleteReqDto reqDto) {
 
         GeneralFareRuleRespDto respDto =
                 new GeneralFareRuleRespDto();
@@ -188,9 +195,10 @@ public class FareRuleController {
 
     // PERMANENT DELETE
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_FARE_RULE')")
     public ResponseEntity<GeneralFareRuleRespDto>
             deleteFareRulePermanently(
-                    @RequestBody FareRuleDeleteReqDto reqDto) {
+                @Valid  @RequestBody FareRuleDeleteReqDto reqDto) {
 
         GeneralFareRuleRespDto respDto =
                 new GeneralFareRuleRespDto();

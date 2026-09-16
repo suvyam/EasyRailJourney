@@ -4,6 +4,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,12 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.AccountDeleteReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.GeneralUserRespDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.PassengerUpdateReqstDto;
-import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.UserRegisterReqDto;
-import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.UserRegisterRespDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.UserDtos.UserRoleReqstDto;
 import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.users.Users;
 import com.easyrailjourney.EasyRailJourney.services.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/user")
@@ -33,31 +34,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    // REGISTER USER----
-    @PostMapping
-    public ResponseEntity<UserRegisterRespDto> registerUser(
-            @RequestBody UserRegisterReqDto reqDto) {
-
-        UserRegisterRespDto respDto = new UserRegisterRespDto();
-
-        try {
-
-            Users user = userService.registerUser(reqDto);
-
-            respDto.setUser(user);
-            respDto.setResponseStatus(ResponseStatus.SUCCESS);
-
-        } catch (Exception e) {
-
-            respDto.setResponseStatus(ResponseStatus.FAILURE);
-            respDto.setMessage(e.getMessage());
-        }
-
-        return ResponseEntity.ok().body(respDto);
-    }
 
     // GET USER----
     @GetMapping
+       @PreAuthorize ("hasAuthority('READ_USER')")
     public ResponseEntity<GeneralUserRespDto> getAllUsers() {
 
         GeneralUserRespDto respDto = new GeneralUserRespDto();
@@ -80,6 +60,7 @@ public class UserController {
 
     // SEARCH USER----
     @GetMapping("/search")
+    @PreAuthorize ("hasAuthority('SEARCH_USER')")
     public ResponseEntity<GeneralUserRespDto> getUserByIdOrPhoneNumberOrUserNameOrEmail(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String phoneNumber,
@@ -122,8 +103,9 @@ public class UserController {
 
     // UPDATE USER----
     @PutMapping
+    @PreAuthorize ("hasAuthority('UPDATE_USER')")
     public ResponseEntity<GeneralUserRespDto> updateUser(
-            @RequestBody PassengerUpdateReqstDto entity) {
+        @Valid   @RequestBody PassengerUpdateReqstDto entity) {
 
         GeneralUserRespDto respDto = new GeneralUserRespDto();
 
@@ -150,8 +132,9 @@ public class UserController {
 
     // DELETE SOFT USER----
     @DeleteMapping
+    @PreAuthorize ("hasAuthority('DELETE_USER')")
     public ResponseEntity<GeneralUserRespDto> deleteUser(
-            @RequestBody AccountDeleteReqDto reqDto) {
+        @Valid   @RequestBody AccountDeleteReqDto reqDto) {
 
         GeneralUserRespDto respDto = new GeneralUserRespDto();
 
@@ -181,8 +164,9 @@ public class UserController {
 
     // DELETE PERMANENTLY USER----
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize ("hasAuthority('DELETE_USER')")
     public ResponseEntity<GeneralUserRespDto> deleteUserPermanently(
-            @RequestBody AccountDeleteReqDto reqDto) {
+        @Valid   @RequestBody AccountDeleteReqDto reqDto) {
 
         GeneralUserRespDto respDto = new GeneralUserRespDto();
 
@@ -213,8 +197,9 @@ public class UserController {
 
     // REMOVE ROLE USER----
     @DeleteMapping("/role")
+    @PreAuthorize ("hasAuthority('DELETE_ROLE')")
     public ResponseEntity<GeneralUserRespDto> removeUserRole(
-            @RequestBody UserRoleReqstDto reqstDto) throws Exception {
+        @Valid  @RequestBody UserRoleReqstDto reqstDto) throws Exception {
 
         GeneralUserRespDto respDto = new GeneralUserRespDto();
 
@@ -234,8 +219,9 @@ public class UserController {
 
     // ADD ROLE USER----
     @PostMapping("/role")
+    @PreAuthorize ("hasAuthority('ADD_ROLE')")
     public ResponseEntity<GeneralUserRespDto> addUserRole(
-            @RequestBody UserRoleReqstDto reqstDto) throws Exception {
+        @Valid  @RequestBody UserRoleReqstDto reqstDto) throws Exception {
 
         GeneralUserRespDto respDto = new GeneralUserRespDto();
 

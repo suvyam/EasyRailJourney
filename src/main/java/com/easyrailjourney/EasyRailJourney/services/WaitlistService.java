@@ -19,6 +19,7 @@ public class WaitlistService {
     private final SeatWaitlistRepo seatWaitlistRepo;
     private final WaitlistAllocationStrategy waitlistAllocationStrategy;
 
+  
     public Optional<SeatWaitlist> findNextPassenger(
             ScheduleTrainClassSeat seat) {
 
@@ -27,6 +28,8 @@ public class WaitlistService {
                         seat
                 );
     }
+
+
 
     public Integer getNextPosition(
             ScheduleTrainClassSeat seat) {

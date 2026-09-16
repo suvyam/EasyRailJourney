@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,8 @@ import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.Train;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.TrainService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/train")
 public class TrainController {
@@ -35,8 +38,9 @@ public class TrainController {
 
     // CREATE TRAIN----
     @PostMapping
+            @PreAuthorize("hasAuthority('ADD_TRAIN')")
     public ResponseEntity<GeneralTrainRespDto> createTrain(
-            @RequestBody TrainCreateReqDto reqDto) {
+           @Valid @RequestBody TrainCreateReqDto reqDto) {
 
         GeneralTrainRespDto respDto = new GeneralTrainRespDto();
 
@@ -61,6 +65,7 @@ public class TrainController {
 
     // GET ALL TRAIN----
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_TRAIN')")
     public ResponseEntity<GeneralTrainRespDto> getAllTrains() {
 
         GeneralTrainRespDto respDto = new GeneralTrainRespDto();
@@ -85,6 +90,7 @@ public class TrainController {
 
     // SEARCH TRAIN----
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_TRAIN')")
     public ResponseEntity<GeneralTrainRespDto> searchTrain(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String trainNumber,
@@ -132,8 +138,9 @@ public class TrainController {
 
     // UPDATE TRAIN----
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_TRAIN')")
     public ResponseEntity<GeneralTrainRespDto> updateTrain(
-            @RequestBody TrainUpdateReqDto reqDto) {
+        @Valid  @RequestBody TrainUpdateReqDto reqDto) {
 
         GeneralTrainRespDto respDto = new GeneralTrainRespDto();
 
@@ -160,8 +167,9 @@ public class TrainController {
 
     // DELETE SOFT TRAIN----
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_TRAIN')")
     public ResponseEntity<GeneralTrainRespDto> deleteTrain(
-            @RequestBody TrainDeleteReqDto reqDto) {
+        @Valid  @RequestBody TrainDeleteReqDto reqDto) {
 
         GeneralTrainRespDto respDto = new GeneralTrainRespDto();
 
@@ -191,8 +199,9 @@ public class TrainController {
 
     // DELETE PERMANENTLY TRAIN----
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_TRAIN')")
     public ResponseEntity<GeneralTrainRespDto> deleteTrainPermanently(
-            @RequestBody TrainDeleteReqDto reqDto) {
+        @Valid  @RequestBody TrainDeleteReqDto reqDto) {
 
         GeneralTrainRespDto respDto = new GeneralTrainRespDto();
 

@@ -31,9 +31,7 @@ public class SeatAllocationService {
         );
     }
 
-    public boolean allocateSeat(
-            List<ScheduleTrainClassSeat> seats,
-            Bookings booking) throws Exception {
+    public boolean allocateSeat(List<ScheduleTrainClassSeat> seats,Bookings booking) throws Exception {
 
         return seatAllocationStrategy.allocateSeat(
                 seats,

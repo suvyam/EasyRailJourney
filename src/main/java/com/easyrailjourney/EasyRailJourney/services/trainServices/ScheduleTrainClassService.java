@@ -56,6 +56,7 @@ public class ScheduleTrainClassService {
     }
 
     // CREATE
+    @Transactional 
     public ScheduleTrainClassRespDto createScheduleTrainClass(
             ScheduleTrainClassCreateReqDto reqDto) throws Exception {
 

@@ -19,7 +19,7 @@ public interface UserRepo extends JpaRepository<Users, Long> {
 
     Optional<Users> findByEmail(String email);
 
-    Optional<Users> findByProfileName(String profile);
+    Optional<Users> findByProfileNameAndIsDeleted(String profile,boolean isDeleted);
 
     Optional<Users> findByEmailAndIsDeletedFalse(String email);
 

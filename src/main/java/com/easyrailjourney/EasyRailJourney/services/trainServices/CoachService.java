@@ -15,6 +15,8 @@ import com.easyrailjourney.EasyRailJourney.repository.trainRepos.CoachTypeRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.SeatRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainClassRepo;
 
+import jakarta.transaction.Transactional;
+
 
 
 
@@ -41,6 +43,7 @@ public class CoachService {
     }
 
     // CREATE
+   @Transactional 
     public Coach createCoach(
             CoachCreateReqDto reqDto) throws Exception {
 
@@ -97,6 +100,7 @@ public class CoachService {
     }
 
     // UPDATE
+    @Transactional 
     public boolean updateCoach(
             CoachUpdateReqDto reqDto) throws Exception {
 
@@ -119,6 +123,7 @@ public class CoachService {
     }
 
     // SOFT DELETE
+    @Transactional 
     public boolean deleteCoach(
             CoachDeleteReqDto reqDto) throws Exception {
 
@@ -132,6 +137,7 @@ public class CoachService {
     }
 
     // PERMANENT DELETE
+    @Transactional 
     public boolean deleteCoachPermanently(
             CoachDeleteReqDto reqDto) throws Exception {
 

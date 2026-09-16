@@ -96,7 +96,7 @@ public class CoachSeatService{
     
     
     
-    @Transactional
+        @Transactional
          public CoachSeatRespDto updateSeats(
                  Long coachId,
                  AssignCoachSeatReqDto dto) {
@@ -186,6 +186,7 @@ public class CoachSeatService{
     
      return "Seat removed from coach successfully";
     }
+    
     
     @Transactional(readOnly = true)
     public CoachSeatRespDto getCoachBySeatId(Long seatId) {
