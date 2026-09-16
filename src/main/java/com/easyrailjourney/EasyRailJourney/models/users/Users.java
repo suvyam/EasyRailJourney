@@ -1,6 +1,7 @@
 package com.easyrailjourney.EasyRailJourney.models.users;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +53,7 @@ public class Users extends BaseModel {
 
     @NotNull(message = "Date of birth is required")
     @Column(nullable = false)
-    private LocalDate DOB;
+    private Date DOB;
 
     @NotBlank(message = "Gender is required")
     @Column(nullable = false)

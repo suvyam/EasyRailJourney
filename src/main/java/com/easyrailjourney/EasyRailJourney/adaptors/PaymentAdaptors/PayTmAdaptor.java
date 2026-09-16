@@ -5,12 +5,14 @@ import com.easyrailjourney.EasyRailJourney.Dtos.PaymentDtos.PaymentCreateReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.PaymentDtos.PaymentStratergyResp;
 import com.easyrailjourney.EasyRailJourney.enums.Payments.PaymentStatus;
 
+import jakarta.validation.Valid;
+
 @Component
 public class PayTmAdaptor implements  PaymentGatewayAdapter {
 
 
   @Override
-  public PaymentStratergyResp pay(PaymentCreateReqDto request) {
+  public PaymentStratergyResp pay(@Valid  PaymentCreateReqDto request) {
 
       // Convert your request into Paytm's request format
 

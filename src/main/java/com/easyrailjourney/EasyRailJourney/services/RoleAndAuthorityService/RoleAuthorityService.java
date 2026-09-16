@@ -12,6 +12,8 @@ import com.easyrailjourney.EasyRailJourney.repository.RoleAndAuthorityRepos.Auth
 import com.easyrailjourney.EasyRailJourney.repository.RoleAndAuthorityRepos.RoleAuthorityRepo;
 import com.easyrailjourney.EasyRailJourney.repository.RoleAndAuthorityRepos.RoleRepo;
 
+import jakarta.transaction.Transactional;
+
 
 @Service
 
@@ -27,6 +29,9 @@ public class RoleAuthorityService {
         this.roleAuthorityRepo = roleAuthorityRepo;
     };
 
+
+
+    @Transactional 
     public RoleAuthority assignAuthority(
             RoleAuthorityRequestDto dto) {
 
@@ -55,6 +60,8 @@ public class RoleAuthorityService {
         return roleAuthorityRepo.save(roleAuthority);
     }
 
+
+    
     public List<RoleAuthority> getAuthoritiesByRole(Long roleId) {
 
         if (!roleRepo.existsById(roleId)) {
@@ -64,6 +71,8 @@ public class RoleAuthorityService {
         return roleAuthorityRepo.findByRoleId(roleId);
     }
 
+    
+    @Transactional 
     public void removeAuthorityFromRole(
             Long roleId,
             Long authorityId) {

@@ -20,4 +20,6 @@ public class ScheduleTrainStationUpdateReqDto {
     private Date arrivalTime;
 
     private Date departureTime;
+    
+
 }

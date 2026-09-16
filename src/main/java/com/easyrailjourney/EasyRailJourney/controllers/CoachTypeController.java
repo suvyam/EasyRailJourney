@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.CoachType;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.CoachTypeService;
+
+import jakarta.validation.Valid;
 
 
 
@@ -32,8 +35,9 @@ public class CoachTypeController {
 
     // CREATE
     @PostMapping
+    @PreAuthorize("hasAuthority('ADD_COACH_TYPE')")
     public ResponseEntity<CoachType> createCoachType(
-            @RequestBody CoachType coachType) {
+          @Valid   @RequestBody CoachType coachType) {
 
         return ResponseEntity.ok(
                 coachTypeService.createCoachType(coachType)
@@ -42,6 +46,7 @@ public class CoachTypeController {
 
     // GET ALL
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_COACH_TYPE')")
     public ResponseEntity<List<CoachType>> getAllCoachTypes() {
 
         return ResponseEntity.ok(
@@ -51,6 +56,7 @@ public class CoachTypeController {
 
     // GET BY ID
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('READ_COACH_TYPE')")
     public ResponseEntity<CoachType> getCoachTypeById(
             @PathVariable Long id) {
 
@@ -61,8 +67,9 @@ public class CoachTypeController {
 
     // UPDATE
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_COACH_TYPE')")
     public ResponseEntity<CoachType> updateCoachType(
-            @RequestBody CoachType coachType) {
+        @Valid  @RequestBody CoachType coachType) {
 
         return ResponseEntity.ok(
                 coachTypeService.updateCoachType(coachType)
@@ -71,6 +78,7 @@ public class CoachTypeController {
 
     // DELETE
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_COACH_TYPE')")
     public ResponseEntity<String> deleteCoachType(
             @PathVariable Long id) {
 

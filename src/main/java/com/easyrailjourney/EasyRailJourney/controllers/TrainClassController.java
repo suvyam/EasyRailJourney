@@ -5,6 +5,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,8 @@ import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.TrainClass;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.TrainClassService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/train-class")
 public class TrainClassController {
@@ -34,8 +37,9 @@ public class TrainClassController {
 
     // CREATE
     @PostMapping
+    @PreAuthorize("hasAuthority('ADD_TRAIN_CLASS')")
     public ResponseEntity<GeneralTrainClassRespDto> createTrainClass(
-            @RequestBody TrainClassCreateReqDto reqDto) {
+           @Valid  @RequestBody TrainClassCreateReqDto reqDto) {
 
         GeneralTrainClassRespDto respDto =
                 new GeneralTrainClassRespDto();
@@ -59,6 +63,7 @@ public class TrainClassController {
 
     // GET ALL
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_TRAIN_CLASS')")
     public ResponseEntity<GeneralTrainClassRespDto>
             getAllTrainClasses() {
 
@@ -84,6 +89,7 @@ public class TrainClassController {
 
     // SEARCH
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_TRAIN_CLASS')")
     public ResponseEntity<GeneralTrainClassRespDto>
             searchTrainClass(
                     @RequestParam(required = false) Long id,
@@ -126,9 +132,10 @@ public class TrainClassController {
 
     // UPDATE
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_TRAIN_CLASS')")
     public ResponseEntity<GeneralTrainClassRespDto>
             updateTrainClass(
-                    @RequestBody TrainClassUpdateReqDto reqDto) {
+                @Valid   @RequestBody TrainClassUpdateReqDto reqDto) {
 
         GeneralTrainClassRespDto respDto =
                 new GeneralTrainClassRespDto();
@@ -160,9 +167,10 @@ public class TrainClassController {
 
     // SOFT DELETE
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_TRAIN_CLASS')")
     public ResponseEntity<GeneralTrainClassRespDto>
             deleteTrainClass(
-                    @RequestBody TrainClassDeleteReqDto reqDto) {
+                @Valid  @RequestBody TrainClassDeleteReqDto reqDto) {
 
         GeneralTrainClassRespDto respDto =
                 new GeneralTrainClassRespDto();
@@ -197,9 +205,10 @@ public class TrainClassController {
 
     // PERMANENT DELETE
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_TRAIN_CLASS')")
     public ResponseEntity<GeneralTrainClassRespDto>
             deleteTrainClassPermanently(
-                    @RequestBody TrainClassDeleteReqDto reqDto) {
+                @Valid   @RequestBody TrainClassDeleteReqDto reqDto) {
 
         GeneralTrainClassRespDto respDto =
                 new GeneralTrainClassRespDto();

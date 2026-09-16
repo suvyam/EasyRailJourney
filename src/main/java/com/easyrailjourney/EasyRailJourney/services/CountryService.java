@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.services;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.easyrailjourney.EasyRailJourney.Dtos.CountryDtos.CountryCreateReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.CountryDtos.CountryDeleteReqDto;
@@ -19,6 +20,9 @@ public class CountryService {
         this.countryRepo = countryRepo;
     }
 
+
+
+    @Transactional
     public Country createCountry(CountryCreateReqDto dto) {
 
         Country country = new Country();
@@ -27,9 +31,11 @@ public class CountryService {
         return countryRepo.save(country);
     }
 
+  
     public List<Country> getAllCountries() {
         return  countryRepo.findAll();
     }
+
 
     public Country getCountryById(Long id) {
 
@@ -37,6 +43,8 @@ public class CountryService {
                 .orElseThrow(() -> new RuntimeException("Country not found"));
     }
 
+   
+    @Transactional
     public Country updateCountry(CountryUpdateReqDto dto) {
 
         Country country = countryRepo.findByIdAndIsDeleted(dto.getId(), false)
@@ -47,6 +55,8 @@ public class CountryService {
         return countryRepo.save(country);
     }
 
+   
+    @Transactional
     public boolean deleteCountry(CountryDeleteReqDto dto) {
 
         Country country = countryRepo.findByIdAndIsDeleted(dto.getId(), false)
@@ -59,6 +69,7 @@ public class CountryService {
         return true;
     }
 
+    @Transactional
     public boolean deleteCountryPermanently(Long id) {
 
         Country country = countryRepo.findById(id)

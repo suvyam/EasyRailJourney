@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.services;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.easyrailjourney.EasyRailJourney.Dtos.CityDtos.CityCreateReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.CityDtos.CityDeleteReqDto;
@@ -25,6 +26,7 @@ public class CityService {
         this.stateRepo = stateRepo;
     }
 
+    @Transactional
     public City createCity(CityCreateReqDto dto) {
 
         States state = stateRepo.findById(dto.getStateId())
@@ -37,15 +39,20 @@ public class CityService {
         return cityRepo.save(city);
     }
 
+
+   
     public List<City> getAllCities() {
         return  cityRepo.findAll();
     }
+
 
     public City getCityById(Long id) {
         return cityRepo.findByIdAndIsDeleted(id, false)
                 .orElseThrow(() -> new RuntimeException("City not found"));
     }
 
+
+    @Transactional
     public City updateCity(CityUpdateReqDto dto) {
 
         City city = cityRepo.findByIdAndIsDeleted(dto.getId(), false)
@@ -60,6 +67,8 @@ public class CityService {
         return cityRepo.save(city);
     }
 
+
+    @Transactional
     public boolean deleteCity(CityDeleteReqDto dto) {
 
         City city = cityRepo.findByIdAndIsDeleted(dto.getId(), false)
@@ -73,6 +82,8 @@ public class CityService {
         return true;
     }
 
+
+    @Transactional
     public boolean deleteCityPermanently(Long id) {
 
         City city = cityRepo.findById(id)

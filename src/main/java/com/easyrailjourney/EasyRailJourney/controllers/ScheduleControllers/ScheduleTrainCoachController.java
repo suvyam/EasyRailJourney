@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.controllers.ScheduleControllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +22,8 @@ import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrainCoach;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.ScheduleTrainCoachService;
 
+import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/schedule/coach")
@@ -33,9 +36,10 @@ public class ScheduleTrainCoachController {
      }
 
      @PostMapping
+     @PreAuthorize("hasAuthority('CREATE_SCHEDULE_TRAIN_COACH')")
     public ResponseEntity<GeneralScheduleTrainCoachRespDto>
             createScheduleTrainCoach(
-                    @RequestBody ScheduleTrainCoachCreateReqDto reqDto) {
+                  @Valid   @RequestBody ScheduleTrainCoachCreateReqDto reqDto) {
 
         GeneralScheduleTrainCoachRespDto respDto =
                 new GeneralScheduleTrainCoachRespDto();
@@ -61,6 +65,7 @@ public class ScheduleTrainCoachController {
 
     // GET ALL SCHEDULE TRAIN COACH----
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_SCHEDULE_TRAIN_COACH')")
     public ResponseEntity<GeneralScheduleTrainCoachRespDto>
             getAllScheduleTrainCoaches() {
 
@@ -88,6 +93,7 @@ public class ScheduleTrainCoachController {
 
     // SEARCH SCHEDULE TRAIN COACH----
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_SCHEDULE_TRAIN_COACH')")
     public ResponseEntity<GeneralScheduleTrainCoachRespDto>
             searchScheduleTrainCoach(
                     @RequestParam(required = false) Long id,
@@ -135,9 +141,10 @@ public class ScheduleTrainCoachController {
 
     // UPDATE SCHEDULE TRAIN COACH----
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_SCHEDULE_TRAIN_COACH')")
     public ResponseEntity<GeneralScheduleTrainCoachRespDto>
             updateScheduleTrainCoach(
-                    @RequestBody ScheduleTrainCoachUpdateReqDto reqDto) {
+                @Valid  @RequestBody ScheduleTrainCoachUpdateReqDto reqDto) {
 
         GeneralScheduleTrainCoachRespDto respDto =
                 new GeneralScheduleTrainCoachRespDto();
@@ -171,9 +178,10 @@ public class ScheduleTrainCoachController {
 
     // SOFT DELETE SCHEDULE TRAIN COACH----
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_SCHEDULE_TRAIN_COACH')")
     public ResponseEntity<GeneralScheduleTrainCoachRespDto>
             deleteScheduleTrainCoach(
-                    @RequestBody ScheduleTrainCoachDeleteReqDto reqDto) {
+                @Valid   @RequestBody ScheduleTrainCoachDeleteReqDto reqDto) {
 
         GeneralScheduleTrainCoachRespDto respDto =
                 new GeneralScheduleTrainCoachRespDto();
@@ -210,9 +218,10 @@ public class ScheduleTrainCoachController {
 
     // PERMANENT DELETE SCHEDULE TRAIN COACH----
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_SCHEDULE_TRAIN_COACH')")
     public ResponseEntity<GeneralScheduleTrainCoachRespDto>
             deleteScheduleTrainCoachPermanently(
-                    @RequestBody ScheduleTrainCoachDeleteReqDto reqDto) {
+                @Valid   @RequestBody ScheduleTrainCoachDeleteReqDto reqDto) {
 
         GeneralScheduleTrainCoachRespDto respDto =
                 new GeneralScheduleTrainCoachRespDto();

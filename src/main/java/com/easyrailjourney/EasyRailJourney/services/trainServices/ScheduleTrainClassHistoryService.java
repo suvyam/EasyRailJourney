@@ -11,6 +11,7 @@ import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleHistory
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrainClass;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.ScheduleTrainHistoryRepos.ScheduleTrainClassHistoryRepo;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,6 +21,7 @@ public class ScheduleTrainClassHistoryService {
     private final ScheduleTrainClassHistoryRepo
             scheduleTrainClassHistoryRepo;
 
+    @Transactional 
     public void archive(
             ScheduleTrainClass scheduleTrainClass) {
 

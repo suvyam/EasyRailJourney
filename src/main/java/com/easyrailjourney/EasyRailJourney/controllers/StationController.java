@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,8 @@ import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.Station;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.StationService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/station")
 public class StationController {
@@ -33,8 +36,9 @@ public class StationController {
 
     // CREATE STATION----
     @PostMapping
+        @PreAuthorize("hasAuthority('CREATE_STATION')")
     public ResponseEntity<GeneralStationRespDto> createStation(
-            @RequestBody StationCreateReqDto reqDto) {
+            @Valid @RequestBody StationCreateReqDto reqDto) {
 
         GeneralStationRespDto respDto =
                 new GeneralStationRespDto();
@@ -63,6 +67,7 @@ public class StationController {
 
     // GET ALL STATIONS----
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_STATION')")
     public ResponseEntity<GeneralStationRespDto> getAllStations() {
 
         GeneralStationRespDto respDto =
@@ -92,6 +97,7 @@ public class StationController {
 
     // SEARCH STATION----
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_STATION')")
     public ResponseEntity<GeneralStationRespDto> searchStation(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String code,
@@ -138,8 +144,9 @@ public class StationController {
 
     // UPDATE STATION----
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_STATION')")
     public ResponseEntity<GeneralStationRespDto> updateStation(
-            @RequestBody StationUpdateReqDto reqDto) {
+        @Valid   @RequestBody StationUpdateReqDto reqDto) {
 
         GeneralStationRespDto respDto =
                 new GeneralStationRespDto();
@@ -182,8 +189,9 @@ public class StationController {
 
     // SOFT DELETE STATION----
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_STATION')")
     public ResponseEntity<GeneralStationRespDto> deleteStation(
-            @RequestBody StationDeleteReqDto reqDto) {
+        @Valid  @RequestBody StationDeleteReqDto reqDto) {
 
         GeneralStationRespDto respDto =
                 new GeneralStationRespDto();
@@ -229,9 +237,10 @@ public class StationController {
 
     // DELETE PERMANENTLY STATION----
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_STATION')")
     public ResponseEntity<GeneralStationRespDto>
             deleteStationPermanently(
-                    @RequestBody StationDeleteReqDto reqDto) {
+                @Valid   @RequestBody StationDeleteReqDto reqDto) {
 
         GeneralStationRespDto respDto =
                 new GeneralStationRespDto();

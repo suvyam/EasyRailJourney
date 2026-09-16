@@ -1,6 +1,7 @@
 package com.easyrailjourney.EasyRailJourney.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ public class StateController {
     }
 
     @PostMapping
+     @PreAuthorize ("hasAuthority('ADD_STATE')")
     public ResponseEntity<GeneralStateRespDto> createState(
             @Valid @RequestBody StateCreateReqDto dto) {
 
@@ -48,6 +50,7 @@ public class StateController {
     }
 
     @GetMapping
+    @PreAuthorize ("hasRole('READ_STATE')")
     public ResponseEntity<GeneralStateRespDto> getAllStates() {
 
         GeneralStateRespDto response = new GeneralStateRespDto();
@@ -65,6 +68,7 @@ public class StateController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize ("hasRole('READ_STATE')")
     public ResponseEntity<GeneralStateRespDto> getState(
             @PathVariable Long id) {
 
@@ -83,6 +87,7 @@ public class StateController {
     }
 
     @PutMapping
+    @PreAuthorize ("hasRole('UPDATE_STATE')")
     public ResponseEntity<GeneralStateRespDto> updateState(
             @Valid @RequestBody StateUpdateReqDto dto) {
 
@@ -102,6 +107,7 @@ public class StateController {
     }
 
     @DeleteMapping
+    @PreAuthorize ("hasRole('DELETE_STATE')")
     public ResponseEntity<GeneralStateRespDto> deleteState(
             @Valid @RequestBody StateDeleteReqDto dto) {
 
@@ -122,6 +128,7 @@ public class StateController {
     }
 
     @DeleteMapping("/delete-permanently/{id}")
+    @PreAuthorize ("hasRole('DELETE_STATE')")
     public ResponseEntity<GeneralStateRespDto> deleteStatePermanently(
             @PathVariable Long id) {
 

@@ -3,16 +3,13 @@ package com.easyrailjourney.EasyRailJourney.services.trainServices;
 
 import java.util.List;
 
-import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.SeatType.SeatTypeReqDto;
-import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.SeatType.SeatTypeRespDto;
-
-
-
 import org.springframework.stereotype.Service;
 
-
+import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.SeatType.SeatTypeReqDto;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.SeatType;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.SeatTypeRepo;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class SeatTypeService {
@@ -25,6 +22,7 @@ public class SeatTypeService {
 
     // CREATE SEAT TYPE
 
+        @Transactional 
     public SeatType createSeatType(SeatTypeReqDto reqDto) {
 
         if (reqDto == null) {
@@ -75,7 +73,7 @@ public class SeatTypeService {
 
 
     // UPDATE SEAT TYPE
-
+    @Transactional 
     public boolean updateSeatType(SeatTypeReqDto reqDto) {
 
         if (reqDto == null) {
@@ -108,6 +106,7 @@ public class SeatTypeService {
 
 
     // SOFT DELETE SEAT TYPE
+    @Transactional 
     public boolean deleteSeatType(SeatTypeReqDto reqDto) {
 
         if (reqDto == null) {
@@ -136,7 +135,7 @@ public class SeatTypeService {
 
 
     // PERMANENT DELETE SEAT TYPE
-
+    @Transactional 
     public boolean deleteSeatTypePermanently(
         SeatTypeReqDto reqDto) {
 

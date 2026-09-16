@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.controllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,8 @@ import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.Seat;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.SeatService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/seat")
 public class SeatController {
@@ -32,8 +35,9 @@ public class SeatController {
 
     // CREATE SEAT----
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_SEAT')")
     public ResponseEntity<GeneralSeatRespDto> createSeat(
-            @RequestBody SeatCreateReqDto reqDto) {
+           @Valid  @RequestBody SeatCreateReqDto reqDto) {
 
         GeneralSeatRespDto respDto = new GeneralSeatRespDto();
 
@@ -55,6 +59,7 @@ public class SeatController {
 
     // GET ALL SEATS----
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_SEAT')")
     public ResponseEntity<GeneralSeatRespDto> getAllSeats() {
 
         GeneralSeatRespDto respDto = new GeneralSeatRespDto();
@@ -77,6 +82,7 @@ public class SeatController {
 
     // SEARCH SEAT----
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_SEAT')")
     public ResponseEntity<GeneralSeatRespDto> searchSeat(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) Long coachId,
@@ -119,8 +125,9 @@ public class SeatController {
 
     // UPDATE SEAT----
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_SEAT')")
     public ResponseEntity<GeneralSeatRespDto> updateSeat(
-            @RequestBody SeatUpdateReqDto reqDto) {
+        @Valid  @RequestBody SeatUpdateReqDto reqDto) {
 
         GeneralSeatRespDto respDto = new GeneralSeatRespDto();
 
@@ -147,8 +154,9 @@ public class SeatController {
 
     // SOFT DELETE SEAT----
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_SEAT')")
     public ResponseEntity<GeneralSeatRespDto> deleteSeat(
-            @RequestBody SeatDeleteReqDto reqDto) {
+        @Valid  @RequestBody SeatDeleteReqDto reqDto) {
 
         GeneralSeatRespDto respDto = new GeneralSeatRespDto();
 
@@ -178,8 +186,9 @@ public class SeatController {
 
     // DELETE PERMANENTLY SEAT----
     @DeleteMapping("/delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_SEAT')")
     public ResponseEntity<GeneralSeatRespDto> deleteSeatPermanently(
-            @RequestBody SeatDeleteReqDto reqDto) {
+        @Valid  @RequestBody SeatDeleteReqDto reqDto) {
 
         GeneralSeatRespDto respDto = new GeneralSeatRespDto();
 

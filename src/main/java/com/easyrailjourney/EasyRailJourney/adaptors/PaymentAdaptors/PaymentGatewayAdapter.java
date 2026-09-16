@@ -5,8 +5,10 @@ import org.springframework.stereotype.Component;
 import com.easyrailjourney.EasyRailJourney.Dtos.PaymentDtos.PaymentCreateReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.PaymentDtos.PaymentStratergyResp;
 
+import jakarta.validation.Valid;
+
 @Component 
 public interface PaymentGatewayAdapter {
 
-    PaymentStratergyResp pay(PaymentCreateReqDto request);
+    PaymentStratergyResp pay(@Valid PaymentCreateReqDto request);
 }

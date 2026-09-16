@@ -7,18 +7,15 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.easyrailjourney.EasyRailJourney.enums.TicketStatus;
 import com.easyrailjourney.EasyRailJourney.models.Ticket;
 import com.easyrailjourney.EasyRailJourney.models.TicketPassenger;
 import com.easyrailjourney.EasyRailJourney.models.bookings.BookingPassenger;
 import com.easyrailjourney.EasyRailJourney.models.bookings.Bookings;
 import com.easyrailjourney.EasyRailJourney.repository.BookingsRepo.BookingPassengerRepo;
 import com.easyrailjourney.EasyRailJourney.repository.BookingsRepo.BookingsRepo;
-
-import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotBlank;
-
 import com.easyrailjourney.EasyRailJourney.repository.TicketRepo;
+
+import jakarta.transaction.Transactional;
 
 @Service 
 public class TicketService {
@@ -34,6 +31,8 @@ public class TicketService {
     };
 
 
+
+    @Transactional
     public Ticket syncTicket(Long bookingId) throws Exception{
 
 

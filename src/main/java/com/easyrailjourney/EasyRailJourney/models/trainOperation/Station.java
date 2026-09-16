@@ -36,9 +36,11 @@ public class Station extends BaseModel {
 
     private String zone;
 
-    private Float latitude;
+    private String address;
 
-    private Float longitude;
+    private String latitude;
+
+    private String longitude;
 
     @NotNull(message = "Station status is required")
     @Enumerated(EnumType.STRING)

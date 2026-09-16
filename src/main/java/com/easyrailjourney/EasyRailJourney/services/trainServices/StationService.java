@@ -15,6 +15,8 @@ import com.easyrailjourney.EasyRailJourney.models.trainOperation.Station;
 import com.easyrailjourney.EasyRailJourney.repository.CityRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.StationRepo;
 
+import jakarta.transaction.Transactional;
+
 
 
 @Service
@@ -35,6 +37,7 @@ public class StationService {
     }
 
     // CREATE
+    @Transactional 
     public Station createStation(
             StationCreateReqDto reqDto) throws Exception {
 
@@ -98,6 +101,7 @@ public class StationService {
     }
 
     // UPDATE
+    @Transactional 
     public boolean updateStation(
             StationUpdateReqDto reqDto) throws Exception {
 
@@ -163,6 +167,7 @@ public class StationService {
     }
 
     // SOFT DELETE
+    @Transactional 
     public boolean deleteStation(
             StationDeleteReqDto reqDto) throws Exception {
 
@@ -176,6 +181,7 @@ public class StationService {
     }
 
     // PERMANENT DELETE
+    @Transactional 
     public boolean deleteStationPermanently(
             StationDeleteReqDto reqDto) throws Exception {
 

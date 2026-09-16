@@ -11,6 +11,7 @@ import com.easyrailjourney.EasyRailJourney.models.trainOperation.Train;
 import com.easyrailjourney.EasyRailJourney.repository.RefundRuleRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainRepo;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 
@@ -22,6 +23,9 @@ public class RefundRuleService {
     private final RefundRuleRepo refundRuleRepo;
     private final TrainRepo trainRepo;
 
+
+
+    @Transactional 
     public RefundRuleRespDto createRule(
             RefundRuleReqDto request) {
 
@@ -47,6 +51,7 @@ public class RefundRuleService {
         );
     }
 
+   
     public List<RefundRuleRespDto> getAllRules() {
 
         return refundRuleRepo.findAll()
@@ -55,6 +60,8 @@ public class RefundRuleService {
                 .toList();
     }
 
+
+   
     public RefundRuleRespDto getRuleById(Long id) {
 
         RefundRule rule = refundRuleRepo.findById(id)
@@ -64,6 +71,8 @@ public class RefundRuleService {
         return convertToDto(rule);
     }
 
+
+    @Transactional 
     public RefundRuleRespDto updateRule(
             Long id,
             RefundRuleReqDto request) {
@@ -92,6 +101,8 @@ public class RefundRuleService {
         );
     }
 
+   
+    @Transactional 
     public void deleteRule(Long id) {
 
         RefundRule rule = refundRuleRepo.findById(id)

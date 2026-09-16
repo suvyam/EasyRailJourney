@@ -32,9 +32,12 @@ build/
 ### VS Code ###
 .vscode/
 .DS_Store
-.DS_Store
 
+# Local Spring configuration containing secrets
+src/main/resources/application-local.yml
 
+# Environment variables / secrets
+.env
 
 /* learn decalre custoe validation decalre 5 for practice with understanding */
 /* convert all double to bigdecimal so that exact value will be stored not approximate which cause in double */
@@ -90,3 +93,17 @@ build/
    I am to build this but I wanna know one thing as history table store history of changes now I wanna know even we do small change in entity of these the related history table also store the changes soo at db level I wanna add this thing like through procedure 
    */
 
+
+/* Refresh token has role and admin check and jwt token  */
+
+/* when train reach to any station the related station booking message should to passanger before next station comming */
+
+/* a train could not be scheulde until coach and class and class eat added so make created until all done */
+
+/* when scheulde train cancels refund all fare to passengers in waitlist and booked only not cancelled one */
+
+
+
+
+/* tranasaction add  then make booking cancel and check data */
+/* add project to git hub and make resume and update  */

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.CoachType;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.CoachTypeRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class CoachTypeService {
 
@@ -16,6 +18,8 @@ public class CoachTypeService {
         this.coachTypeRepository = coachTypeRepository;
     }
 
+
+    @Transactional 
     public CoachType createCoachType(CoachType coachType) {
         return coachTypeRepository.save(coachType);
     }
@@ -33,6 +37,8 @@ public class CoachTypeService {
                         ));
     }
 
+
+    @Transactional 
     public CoachType updateCoachType(CoachType coachType) {
 
         CoachType existing =
@@ -47,6 +53,8 @@ public class CoachTypeService {
         return coachTypeRepository.save(existing);
     }
 
+
+    @Transactional 
     public void deleteCoachType(Long id) {
 
         CoachType existing =

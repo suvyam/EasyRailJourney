@@ -113,6 +113,7 @@ public class BookingService {
     // VALIDATION
     // =========================================================
 
+
     public Boolean validation(GeneralBookingReqDto reqDto)
             throws Exception {
 
@@ -260,6 +261,7 @@ public class BookingService {
     // =========================================================
 
     @Transactional
+
     public Bookings createBooking(CreateBookingReqDto reqDto)
             throws Exception {
 
@@ -878,7 +880,7 @@ public class BookingService {
     // CANCEL BOOKING
     // =========================================================
     @Transactional
-public boolean cancelBooking(Long bookingId) {
+    public boolean cancelBooking(Long bookingId) {
 
     Bookings booking = bookingsRepo.findById(bookingId)
             .orElseThrow(() ->

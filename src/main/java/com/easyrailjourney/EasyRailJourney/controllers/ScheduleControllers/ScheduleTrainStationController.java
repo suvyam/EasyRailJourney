@@ -3,6 +3,7 @@ package com.easyrailjourney.EasyRailJourney.controllers.ScheduleControllers;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,8 @@ import com.easyrailjourney.EasyRailJourney.enums.ResponseStatus;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrainStation;
 import com.easyrailjourney.EasyRailJourney.services.trainServices.ScheduleTrainStationService;
 
+import jakarta.validation.Valid;
+
 @RestController 
 @RequestMapping ("schedule/station")
 public class ScheduleTrainStationController {
@@ -33,9 +36,10 @@ public class ScheduleTrainStationController {
 
     // CREATE SCHEDULE TRAIN STATION----
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_SCHEDULE_TRAIN_STATION')")
     public ResponseEntity<GeneralScheduleTrainStationRespDto>
             createScheduleTrainStation(
-                    @RequestBody CreateAllScheduleTrainStation reqDto) {
+                  @Valid   @RequestBody CreateAllScheduleTrainStation reqDto) {
 
         GeneralScheduleTrainStationRespDto respDto =
                 new GeneralScheduleTrainStationRespDto();
@@ -61,6 +65,7 @@ public class ScheduleTrainStationController {
 
     // GET ALL SCHEDULE TRAIN STATIONS----
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_SCHEDULE_TRAIN_STATION')")
     public ResponseEntity<GeneralScheduleTrainStationRespDto>
             getAllScheduleTrainStations() {
 
@@ -88,6 +93,7 @@ public class ScheduleTrainStationController {
 
     // SEARCH SCHEDULE TRAIN STATION----
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('READ_SCHEDULE_TRAIN_STATION')")
     public ResponseEntity<GeneralScheduleTrainStationRespDto>
             searchScheduleTrainStation(
                     @RequestParam(required = false) Long id,
@@ -98,13 +104,13 @@ public class ScheduleTrainStationController {
         GeneralScheduleTrainStationRespDto respDto =
                 new GeneralScheduleTrainStationRespDto();
 
-        if (id == null &&
-                scheduleTrainId == null &&
-                stationId == null &&
-                stationSequence == null) {
-
-            return ResponseEntity.notFound().build();
-        }
+                if (id == null &&
+                    scheduleTrainId == null &&
+                    stationId == null &&
+                    stationSequence == null) {
+                
+                    return ResponseEntity.badRequest().build();
+                }
 
         try {
 
@@ -132,9 +138,10 @@ public class ScheduleTrainStationController {
 
     // UPDATE SCHEDULE TRAIN STATION----
     @PutMapping
+    @PreAuthorize("hasAuthority('UPDATE_SCHEDULE_TRAIN_STATION')")
     public ResponseEntity<GeneralScheduleTrainStationRespDto>
             updateScheduleTrainStation(
-                    @RequestBody ScheduleTrainStationUpdateReqDto reqDto) {
+                @Valid   @RequestBody ScheduleTrainStationUpdateReqDto reqDto) {
 
         GeneralScheduleTrainStationRespDto respDto =
                 new GeneralScheduleTrainStationRespDto();
@@ -149,6 +156,7 @@ public class ScheduleTrainStationController {
 
                 respDto.setMessage("Successfully Updated");
                 respDto.setResponseStatus(ResponseStatus.SUCCESS);
+                return ResponseEntity.ok().body(respDto);
 
             } else {
 
@@ -168,9 +176,10 @@ public class ScheduleTrainStationController {
 
     // SOFT DELETE SCHEDULE TRAIN STATION----
     @DeleteMapping
+    @PreAuthorize("hasAuthority('DELETE_SCHEDULE_TRAIN_STATION')")
     public ResponseEntity<GeneralScheduleTrainStationRespDto>
             deleteScheduleTrainStation(
-                    @RequestBody ScheduleTrainStationDeleteReqDto reqDto) {
+                @Valid   @RequestBody ScheduleTrainStationDeleteReqDto reqDto) {
 
         GeneralScheduleTrainStationRespDto respDto =
                 new GeneralScheduleTrainStationRespDto();
@@ -207,9 +216,10 @@ public class ScheduleTrainStationController {
 
     // PERMANENT DELETE SCHEDULE TRAIN STATION----
     @DeleteMapping("delete-permanently")
+    @PreAuthorize("hasAuthority('DELETE_SCHEDULE_TRAIN_STATION')")
     public ResponseEntity<GeneralScheduleTrainStationRespDto>
             deleteScheduleTrainStationPermanently(
-                    @RequestBody ScheduleTrainStationDeleteReqDto reqDto) {
+                @Valid   @RequestBody ScheduleTrainStationDeleteReqDto reqDto) {
 
         GeneralScheduleTrainStationRespDto respDto =
                 new GeneralScheduleTrainStationRespDto();
@@ -245,6 +255,7 @@ public class ScheduleTrainStationController {
 
 
     @GetMapping("/History")
+    @PreAuthorize("hasAuthority('READ_SCHEDULE_TRAIN_STATION_HISTORY')")
     public ResponseEntity<List<?>>getAllScheduleTrainStationsHistory(){
         try {
             return ResponseEntity.ok().body( scheduleTrainStationService.getAllScheduleTrainStationsHistory());
@@ -256,6 +267,7 @@ public class ScheduleTrainStationController {
 
 
     @GetMapping("/History/search")
+    @PreAuthorize("hasAuthority('READ_SCHEDULE_TRAIN_STATION_HISTORY')")
     public ResponseEntity<List<?>>getAllScheduleTrainStationsHistory(
         @RequestParam(required = false) Long id,
         @RequestParam(required = false) Long scheduleTrainId,

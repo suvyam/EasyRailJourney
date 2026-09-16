@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.easyrailjourney.EasyRailJourney.Dtos.RoleAuthorityDtos.RoleRequestDto;
 import com.easyrailjourney.EasyRailJourney.models.roleAndAuthoritys.Role;
 import com.easyrailjourney.EasyRailJourney.services.RoleAndAuthorityService.RoleService;
+
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -30,8 +33,9 @@ public class RoleController {
     }
 
     @PostMapping
+    @PreAuthorize ("hasAuthority('ADD_ROLES')")
     public ResponseEntity<Role> createRole(
-         @RequestBody RoleRequestDto dto) {
+         @Valid  @RequestBody RoleRequestDto dto) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -39,6 +43,7 @@ public class RoleController {
     }
 
     @GetMapping
+    @PreAuthorize ("hasAuthority('READ_ROLES')")
     public ResponseEntity<List<Role>> getAllRoles() {
 
         return ResponseEntity.ok(
@@ -46,6 +51,7 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize ("hasAuthority('READ_ROLES')")
     public ResponseEntity<Role> getRoleById(
             @PathVariable Long id) {
 
@@ -54,6 +60,7 @@ public class RoleController {
     }
 
     @GetMapping("/name/{name}")
+    @PreAuthorize ("hasAuthority('READ_ROLES')")
     public ResponseEntity<Role> getRoleByName(
             @PathVariable String name) {
 
@@ -62,6 +69,7 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize ("hasAuthority('UPDATE_ROLES')")
     public ResponseEntity<Role> updateRole(
             @PathVariable Long id, @RequestBody RoleRequestDto dto) {
 
@@ -70,6 +78,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize ("hasAuthority('DELETE_ROLES')")
     public ResponseEntity<Void> deleteRole(
             @PathVariable Long id) {
 

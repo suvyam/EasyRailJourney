@@ -12,6 +12,8 @@ import com.easyrailjourney.EasyRailJourney.models.trainOperation.Train;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.TrainType;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainTypeRepo;
+
+import jakarta.transaction.Transactional;
 @Service
 public class TrainService {
 
@@ -24,6 +26,7 @@ public class TrainService {
     }
 
     // CREATE TRAIN
+    @Transactional 
     public Train createTrain(TrainCreateReqDto reqDto)  throws Exception{
 
         Train train = new Train();
@@ -66,6 +69,7 @@ public class TrainService {
     }
 
     // UPDATE TRAIN
+    @Transactional 
     public boolean updateTrain(TrainUpdateReqDto reqDto) throws Exception {
 
         Train train = trainRepository
@@ -92,6 +96,7 @@ public class TrainService {
     }
 
     // SOFT DELETE TRAIN
+    @Transactional 
     public boolean deleteTrain(TrainDeleteReqDto reqDto) {
 
         Train train;
@@ -128,6 +133,7 @@ public class TrainService {
     }
 
     // PERMANENT DELETE TRAIN
+    @Transactional 
     public boolean deleteTrainPermanently(
             TrainDeleteReqDto reqDto) {
 

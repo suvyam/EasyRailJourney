@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.easyrailjourney.EasyRailJourney.Dtos.RoleAuthorityDtos.AuthorityRequestDto;
 import com.easyrailjourney.EasyRailJourney.models.roleAndAuthoritys.Authorities;
 import com.easyrailjourney.EasyRailJourney.services.RoleAndAuthorityService.AuthorityService;
+
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -31,8 +34,9 @@ public class AuthorityController {
 
 
     @PostMapping
+    @PreAuthorize("hasAuthority('CREATE_AUTHORITY')")
     public ResponseEntity<Authorities> createAuthority(
-            @RequestBody AuthorityRequestDto dto) {
+          @Valid   @RequestBody AuthorityRequestDto dto) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -40,6 +44,7 @@ public class AuthorityController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('READ_AUTHORITY')")
     public ResponseEntity<List<Authorities>> getAllAuthorities() {
 
         return ResponseEntity.ok(
@@ -47,6 +52,7 @@ public class AuthorityController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('READ_AUTHORITY')")
     public ResponseEntity<Authorities> getAuthorityById(
             @PathVariable Long id) {
 
@@ -55,6 +61,7 @@ public class AuthorityController {
     }
 
     @GetMapping("/name/{name}")
+    @PreAuthorize("hasAuthority('READ_AUTHORITY')")
     public ResponseEntity<Authorities> getAuthorityByName(
             @PathVariable String name) {
 
@@ -63,15 +70,17 @@ public class AuthorityController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('UPDATE_AUTHORITY')")
     public ResponseEntity<Authorities> updateAuthority(
             @PathVariable Long id,
-           @RequestBody AuthorityRequestDto dto) {
+            @Valid   @RequestBody AuthorityRequestDto dto) {
 
         return ResponseEntity.ok(
                 authorityService.updateAuthority(id, dto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DELETE_AUTHORITY')")
     public ResponseEntity<Void> deleteAuthority(
             @PathVariable Long id) {
 

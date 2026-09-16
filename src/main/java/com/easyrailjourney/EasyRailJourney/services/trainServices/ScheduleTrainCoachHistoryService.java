@@ -14,6 +14,7 @@ import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleHistory
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrainCoach;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.ScheduleTrainHistoryRepos.ScheduleTrainCoachHistoryRepo;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,6 +24,8 @@ public class ScheduleTrainCoachHistoryService {
     private final ScheduleTrainCoachHistoryRepo
             scheduleTrainCoachHistoryRepo;
 
+
+    @Transactional 
     public void archive(
             ScheduleTrainCoach scheduleTrainCoach) {
 
@@ -53,9 +56,7 @@ public class ScheduleTrainCoachHistoryService {
         scheduleTrainCoachHistoryRepo.save(history);
     }
 
-    public List<ScheduleTrainCoachHistoryRespDto>
-    getByScheduleTrainClassId(
-            Long scheduleTrainClassId) {
+    public List<ScheduleTrainCoachHistoryRespDto> getByScheduleTrainClassId(Long scheduleTrainClassId) {
 
         List<ScheduleTrainCoachHistory> histories =
                 scheduleTrainCoachHistoryRepo

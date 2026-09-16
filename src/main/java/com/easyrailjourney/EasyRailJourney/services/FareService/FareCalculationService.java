@@ -15,6 +15,8 @@ import com.easyrailjourney.EasyRailJourney.Stratergies.FareStrategyType;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.Train;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainRepo;
 
+import jakarta.validation.Valid;
+
 @Service
 public class FareCalculationService {
 
@@ -38,7 +40,7 @@ public class FareCalculationService {
     }
 
     public FareCalculationRespDto calculate(
-            FareCalculationReqDto request
+            @Valid  FareCalculationReqDto request
     ) {
 
         Train train = trainRepo.findById(

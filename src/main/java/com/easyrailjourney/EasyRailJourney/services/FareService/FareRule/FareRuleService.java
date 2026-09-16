@@ -20,6 +20,8 @@ import com.easyrailjourney.EasyRailJourney.repository.StateRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainClassRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class FareRuleService {
 
@@ -36,6 +38,7 @@ public class FareRuleService {
     }
 
     // CREATE
+    @Transactional 
     public FareRuleRespDto createFareRule(
             FareRuleCreateReqDto reqDto) throws Exception {
 
@@ -183,6 +186,7 @@ public class FareRuleService {
 
 
       // UPDATE
+      @Transactional 
       public boolean updateFareRule(
         FareRuleUpdateReqDto reqDto) throws Exception {
 
@@ -281,6 +285,7 @@ public class FareRuleService {
 
 
     // SOFT DELETE
+    @Transactional 
     public boolean deleteFareRule(
             FareRuleDeleteReqDto reqDto) throws Exception {
 
@@ -298,6 +303,7 @@ public class FareRuleService {
 
 
     // PERMANENT DELETE
+    @Transactional 
     public boolean deleteFareRulePermanently(
             FareRuleDeleteReqDto reqDto) throws Exception {
 

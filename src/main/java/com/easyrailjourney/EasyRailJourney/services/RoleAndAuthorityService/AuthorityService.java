@@ -9,6 +9,8 @@ import com.easyrailjourney.EasyRailJourney.Dtos.RoleAuthorityDtos.AuthorityReque
 import com.easyrailjourney.EasyRailJourney.models.roleAndAuthoritys.Authorities;
 import com.easyrailjourney.EasyRailJourney.repository.RoleAndAuthorityRepos.AuthoritiesRepo;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class AuthorityService {
 
@@ -18,6 +20,8 @@ public class AuthorityService {
         this.authoritiesRepo = authoritiesRepo;
     }
 
+    
+    @Transactional 
     public Authorities createAuthority(AuthorityRequestDto dto) {
 
         if (authoritiesRepo.existsByName(dto.getName())) {
@@ -31,9 +35,11 @@ public class AuthorityService {
         return authoritiesRepo.save(authority);
     }
 
+
     public List<Authorities> getAllAuthorities() {
         return authoritiesRepo.findAll();
     }
+
 
     public Authorities getAuthorityById(Long id) {
 
@@ -43,6 +49,7 @@ public class AuthorityService {
                                 "Authority not found with id: " + id));
     }
 
+
     public Authorities getAuthorityByName(String name) {
 
         return authoritiesRepo.findByName(name)
@@ -51,6 +58,8 @@ public class AuthorityService {
                                 "Authority not found: " + name));
     }
 
+
+    @Transactional 
     public Authorities updateAuthority(
             Long id,
             AuthorityRequestDto dto) {
@@ -70,6 +79,8 @@ public class AuthorityService {
         return authoritiesRepo.save(authority);
     }
 
+
+    @Transactional 
     public void deleteAuthority(Long id) {
 
         Authorities authority =
