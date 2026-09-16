@@ -1,6 +1,4 @@
 # EasyRailJourney
-A Spring Boot-based railway reservation backend with train &amp; schedule management, user authentication, role-based authorization, seat booking, ticketing, fare rules, and waitlist management.
-
 
 EasyRailJourney is a backend railway reservation system built using Java and Spring Boot. It provides APIs for railway management, user authentication and authorization, train scheduling, seat management, booking, ticketing, fare rules, refund rule and passenger waitlist and cancellation management.
 
