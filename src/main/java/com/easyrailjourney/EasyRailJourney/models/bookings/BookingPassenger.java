@@ -1,6 +1,7 @@
 package com.easyrailjourney.EasyRailJourney.models.bookings;
 
 import com.easyrailjourney.EasyRailJourney.enums.Bookings.BookingStatus;
+import com.easyrailjourney.EasyRailJourney.enums.Gender;
 import com.easyrailjourney.EasyRailJourney.models.BaseModel;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrainClassSeat;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -30,6 +31,9 @@ public class BookingPassenger extends BaseModel {
 
     @Column (nullable=false)
     Integer age;
+
+    @Enumerated (EnumType.STRING)
+    Gender gender;
 
     @ManyToOne 
     @JoinColumn (name="schedule_train_class_seat_id",nullable=false)

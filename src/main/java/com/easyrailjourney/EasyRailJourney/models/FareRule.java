@@ -43,6 +43,11 @@ public class FareRule extends BaseModel {
     @Column(nullable = false)
     private Double value;
 
+
+    @NotNull(message = "Base value is required")
+    @Column(nullable = false)
+    private Double baseFare;
+
     @NotNull(message = "Fare priority is required")
     @Column(nullable = false)
     private Integer priority;

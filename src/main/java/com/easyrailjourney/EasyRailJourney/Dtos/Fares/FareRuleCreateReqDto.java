@@ -29,6 +29,9 @@ public class FareRuleCreateReqDto {
     @NotNull
     Boolean active;
 
+    @NotNull
+    Double baseFare;
+
     Boolean isDeleted;
 
 

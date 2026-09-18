@@ -27,8 +27,8 @@ public class AuthService {
         this.roleRepo = roleRepo;
     };
 
-       // REGISTER USER
-           @Transactional 
+    // REGISTER USER
+    @Transactional 
     public Users registerUser(UserRegisterReqDto reqDto) throws Exception {
 
         Optional<Users> optionalUser =

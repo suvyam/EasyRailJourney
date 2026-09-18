@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.easyrailjourney.EasyRailJourney.Dtos.Fares.FareRuleCreateReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.Fares.FareRuleDeleteReqDto;
@@ -20,115 +21,139 @@ import com.easyrailjourney.EasyRailJourney.repository.StateRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainClassRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainRepo;
 
-import jakarta.transaction.Transactional;
-
 @Service
 public class FareRuleService {
 
     private final FareRuleRepo fareRuleRepo;
     private final TrainRepo trainRepo;
-    private StateRepo stateRepo;
-    private TrainClassRepo trainClassRepo;
+    private final StateRepo stateRepo;
+    private final TrainClassRepo trainClassRepo;
 
-    public FareRuleService(FareRuleRepo fareRuleRepo,TrainRepo trainRepo, StateRepo stateRepo,   TrainClassRepo trainClassRepo) {
+    public FareRuleService(
+            FareRuleRepo fareRuleRepo,
+            TrainRepo trainRepo,
+            StateRepo stateRepo,
+            TrainClassRepo trainClassRepo
+    ) {
         this.fareRuleRepo = fareRuleRepo;
         this.trainRepo = trainRepo;
         this.stateRepo = stateRepo;
         this.trainClassRepo = trainClassRepo;
     }
 
+    // =========================================================
     // CREATE
-    @Transactional 
+    // =========================================================
+
+    @Transactional(rollbackFor = Exception.class)
     public FareRuleRespDto createFareRule(
-            FareRuleCreateReqDto reqDto) throws Exception {
-
-
+            FareRuleCreateReqDto reqDto
+    ) throws Exception {
 
         FareRule fareRule = new FareRule();
-
-        /*
-         * Set only the fields which are provided
-         * in the request DTO.
-         */
 
         // Train
         if (reqDto.getTrainId() != null) {
 
-           Train train = trainRepo.findById(reqDto.getTrainId()).orElseThrow(()-> new Exception("Train not found"));
+            Train train = trainRepo.findById(reqDto.getTrainId())
+                    .orElseThrow(() ->
+                            new Exception("Train not found")
+                    );
 
             fareRule.setTrain(train);
         }
 
         // State
         if (reqDto.getStateId() != null) {
-             
-           States  state = stateRepo.findById(reqDto.getStateId()).orElseThrow(()-> new Exception("State not found"));
+
+            States state = stateRepo.findById(reqDto.getStateId())
+                    .orElseThrow(() ->
+                            new Exception("State not found")
+                    );
+
             fareRule.setState(state);
         }
 
         // Class Type
-        if (reqDto.getClassName() != null) {
-            TrainClass trainClass = trainClassRepo.findByClassName(reqDto.getClassName()).orElseThrow(()-> new Exception("ClassName not found"));
+        if (reqDto.getClassName() != null
+                && !reqDto.getClassName().isBlank()) {
+
+            TrainClass trainClass =
+                    trainClassRepo.findByClassName(
+                            reqDto.getClassName()
+                    ).orElseThrow(() ->
+                            new Exception("ClassName not found")
+                    );
+
             fareRule.setClassType(trainClass);
+
+        } else {
+
+            throw new Exception("Class name is required");
         }
 
         // Calculation Type
-       // Calculation Type
-        if (reqDto.getCalculationType() != null &&
-        !reqDto.getCalculationType().isBlank()) {
+        if (reqDto.getCalculationType() != null
+                && !reqDto.getCalculationType().isBlank()) {
 
-        try {
+            try {
 
-        FareCalculationType calculationType =
-                FareCalculationType.valueOf(
-                        reqDto.getCalculationType().trim().toUpperCase()
-                );
+                FareCalculationType calculationType =
+                        FareCalculationType.valueOf(
+                                reqDto.getCalculationType()
+                                        .trim()
+                                        .toUpperCase()
+                        );
 
-        fareRule.setCalculationType(calculationType);
+                fareRule.setCalculationType(calculationType);
 
-        } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
 
                 throw new Exception(
-                        "Invalid calculation type. Allowed values: FIXED, PER_KM, PERCENTAGE, MULTIPLIER"
+                        "Invalid calculation type. " +
+                        "Allowed values: FIXED, PER_KM, " +
+                        "PERCENTAGE, MULTIPLIER"
                 );
-          }
-          
+            }
+
+        } else {
+
+            throw new Exception("Calculation type is required");
         }
 
         // Value
         if (reqDto.getValue() != null) {
-
             fareRule.setValue(reqDto.getValue());
         }
 
         // Priority
         if (reqDto.getPriority() != null) {
-
             fareRule.setPriority(reqDto.getPriority());
         }
 
-        // Active
-        if (reqDto.getActive() != null) {
 
-            fareRule.setActive(reqDto.getActive());
+        fareRule.setActive(reqDto.getActive());
+  
 
-        } else {
+        fareRule.setBaseFare(reqDto.getBaseFare());
 
-            // Default value
-            fareRule.setActive(true);
-        }
 
-        // New rule should never be deleted
+
+        // New rule is never deleted
         fareRule.setIsDeleted(false);
 
-        
-         fareRuleRepo.save(fareRule);
+        fareRuleRepo.save(fareRule);
 
-         return wrapper(new ArrayList<>(List.of(fareRule))).get(0);
+        return wrapper(
+                new ArrayList<>(List.of(fareRule))
+        ).get(0);
     }
 
 
+    // =========================================================
     // GET ALL
+    // =========================================================
+
     public List<FareRuleRespDto> getAllFareRules() {
 
         List<FareRule> list = fareRuleRepo.findAll();
@@ -136,163 +161,202 @@ public class FareRuleService {
         return wrapper(list);
     }
 
-    public  List<FareRuleRespDto> wrapper(List<FareRule> reqDto){
+
+    // =========================================================
+    // WRAPPER
+    // =========================================================
+
+    public List<FareRuleRespDto> wrapper(
+            List<FareRule> reqDto
+    ) {
 
         List<FareRuleRespDto> list = new ArrayList<>();
 
-        for(FareRule fr : reqDto){
+        for (FareRule fr : reqDto) {
 
-            FareRuleRespDto fareRuleRespDto = new FareRuleRespDto();
-            Optional<Train> train = Optional.ofNullable(fr.getTrain());
-            if(train.isPresent())fareRuleRespDto.setTrainName(train.get().getTrainName());
+            FareRuleRespDto response =
+                    new FareRuleRespDto();
 
-            Optional<States> state = Optional.ofNullable(fr.getState());
-            if(state.isPresent())fareRuleRespDto.setStateName(state.get().getName());
+            // Train
+            Optional<Train> train =
+                    Optional.ofNullable(fr.getTrain());
 
-            fareRuleRespDto.setClassType(fr.getClassType().getClassName());
+            if (train.isPresent()) {
+                response.setTrainName(
+                        train.get().getTrainName()
+                );
+            }
 
-            fareRuleRespDto.setCalculationType(fr.getCalculationType().toString());
+            // State
+            Optional<States> state =
+                    Optional.ofNullable(fr.getState());
 
-            fareRuleRespDto.setValue(fr.getValue());
+            if (state.isPresent()) {
+                response.setStateName(
+                        state.get().getName()
+                );
+            }
 
-            fareRuleRespDto.setPriority(fr.getPriority());
+            // Class
+            if (fr.getClassType() != null) {
+                response.setClassType(
+                        fr.getClassType().getClassName()
+                );
+            }
 
-            fareRuleRespDto.setActive(true);
+            // Calculation type
+            if (fr.getCalculationType() != null) {
+                response.setCalculationType(
+                        fr.getCalculationType().toString()
+                );
+            }
 
-            fareRuleRespDto.setIsDeleted(false);
+            response.setValue(fr.getValue());
+            response.setPriority(fr.getPriority());
+            response.setActive(fr.isActive());
+            response.setIsDeleted(fr.getIsDeleted());
 
-            list.add(fareRuleRespDto);
-
+            list.add(response);
         }
 
-        
         return list;
-
-
     }
 
 
-    // SEARCH
+    // =========================================================
+    // SEARCH / APPLICABLE RULES
+    // =========================================================
+
     public List<FareRuleRespDto> searchFareRule(
             Long trainId,
             Long stateId,
-            Long classType) {
+            Long classType
+    ) {
 
-
-        List<FareRule> list = fareRuleRepo.findApplicableFareRules(trainId, stateId,classType);
+        List<FareRule> list =
+                fareRuleRepo.findApplicableFareRules(
+                        trainId,
+                        stateId,
+                        classType
+                );
 
         return wrapper(list);
     }
 
 
-      // UPDATE
-      @Transactional 
-      public boolean updateFareRule(
-        FareRuleUpdateReqDto reqDto) throws Exception {
+    // =========================================================
+    // UPDATE
+    // =========================================================
 
-    FareRule fareRule =
-            fareRuleRepo.findById(reqDto.getId())
-                    .orElseThrow(() ->
-                            new Exception("Fare rule not found"));
-
-
-    // Train
-    if (reqDto.getTrainId() != null) {
-
-        Train train = trainRepo.findById(reqDto.getTrainId())
-                .orElseThrow(() ->
-                        new Exception("Train not found"));
-
-        fareRule.setTrain(train);
-    }
-
-
-    // State
-    if (reqDto.getStateId() != null) {
-
-        States state = stateRepo.findById(reqDto.getStateId())
-                .orElseThrow(() ->
-                        new Exception("State not found"));
-
-        fareRule.setState(state);
-    }
-
-
-    // Class Type
-    if (reqDto.getClassName() != null &&
-            !reqDto.getClassName().isBlank()) {
-
-        TrainClass trainClass =
-                trainClassRepo.findByClassName(
-                        reqDto.getClassName()
-                ).orElseThrow(() ->
-                        new Exception("ClassName not found"));
-
-        fareRule.setClassType(trainClass);
-    }
-
-
-    // Calculation Type
-    if (reqDto.getCalculationType() != null &&
-            !reqDto.getCalculationType().isBlank()) {
-
-        try {
-
-            FareCalculationType calculationType =
-                    FareCalculationType.valueOf(
-                            reqDto.getCalculationType()
-                                    .trim()
-                                    .toUpperCase()
-                    );
-
-            fareRule.setCalculationType(calculationType);
-
-        } catch (IllegalArgumentException e) {
-
-            throw new Exception(
-                    "Invalid calculation type. " +
-                    "Allowed values: FIXED, PER_KM, PERCENTAGE, MULTIPLIER"
-            );
-        }
-    }
-
-
-    // Value
-    if (reqDto.getValue() != null) {
-
-        fareRule.setValue(reqDto.getValue());
-    }
-
-
-    // Priority
-    if (reqDto.getPriority() != null) {
-
-        fareRule.setPriority(reqDto.getPriority());
-    }
-
-
-    // Active
-    if (reqDto.getActive() != null) {
-
-        fareRule.setActive(reqDto.getActive());
-    }
-
-
-    fareRuleRepo.save(fareRule);
-
-    return true;
-}
-
-
-    // SOFT DELETE
-    @Transactional 
-    public boolean deleteFareRule(
-            FareRuleDeleteReqDto reqDto) throws Exception {
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateFareRule(
+            FareRuleUpdateReqDto reqDto
+    ) throws Exception {
 
         FareRule fareRule =
                 fareRuleRepo.findById(reqDto.getId())
                         .orElseThrow(() ->
-                                new Exception("Fare rule not found"));
+                                new Exception("Fare rule not found")
+                        );
+
+        // Train
+        if (reqDto.getTrainId() != null) {
+
+            Train train =
+                    trainRepo.findById(reqDto.getTrainId())
+                            .orElseThrow(() ->
+                                    new Exception("Train not found")
+                            );
+
+            fareRule.setTrain(train);
+        }
+
+        // State
+        if (reqDto.getStateId() != null) {
+
+            States state =
+                    stateRepo.findById(reqDto.getStateId())
+                            .orElseThrow(() ->
+                                    new Exception("State not found")
+                            );
+
+            fareRule.setState(state);
+        }
+
+        // Class
+        if (reqDto.getClassName() != null
+                && !reqDto.getClassName().isBlank()) {
+
+            TrainClass trainClass =
+                    trainClassRepo.findByClassName(
+                            reqDto.getClassName()
+                    ).orElseThrow(() ->
+                            new Exception("ClassName not found")
+                    );
+
+            fareRule.setClassType(trainClass);
+        }
+
+        // Calculation type
+        if (reqDto.getCalculationType() != null
+                && !reqDto.getCalculationType().isBlank()) {
+
+            try {
+
+                FareCalculationType calculationType =
+                        FareCalculationType.valueOf(
+                                reqDto.getCalculationType()
+                                        .trim()
+                                        .toUpperCase()
+                        );
+
+                fareRule.setCalculationType(calculationType);
+
+            } catch (IllegalArgumentException e) {
+
+                throw new Exception(
+                        "Invalid calculation type. " +
+                        "Allowed values: FIXED, PER_KM, " +
+                        "PERCENTAGE, MULTIPLIER"
+                );
+            }
+        }
+
+        // Value
+        if (reqDto.getValue() != null) {
+            fareRule.setValue(reqDto.getValue());
+        }
+
+        // Priority
+        if (reqDto.getPriority() != null) {
+            fareRule.setPriority(reqDto.getPriority());
+        }
+
+        // Active
+        if (reqDto.getActive() != null) {
+            fareRule.setActive(reqDto.getActive());
+        }
+
+        fareRuleRepo.save(fareRule);
+
+        return true;
+    }
+
+
+    // =========================================================
+    // SOFT DELETE
+    // =========================================================
+
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteFareRule(
+            FareRuleDeleteReqDto reqDto
+    ) throws Exception {
+
+        FareRule fareRule =
+                fareRuleRepo.findById(reqDto.getId())
+                        .orElseThrow(() ->
+                                new Exception("Fare rule not found")
+                        );
 
         fareRule.setIsDeleted(true);
 
@@ -302,15 +366,20 @@ public class FareRuleService {
     }
 
 
+    // =========================================================
     // PERMANENT DELETE
-    @Transactional 
+    // =========================================================
+
+    @Transactional(rollbackFor = Exception.class)
     public boolean deleteFareRulePermanently(
-            FareRuleDeleteReqDto reqDto) throws Exception {
+            FareRuleDeleteReqDto reqDto
+    ) throws Exception {
 
         FareRule fareRule =
                 fareRuleRepo.findById(reqDto.getId())
                         .orElseThrow(() ->
-                                new Exception("Fare rule not found"));
+                                new Exception("Fare rule not found")
+                        );
 
         fareRuleRepo.delete(fareRule);
 
