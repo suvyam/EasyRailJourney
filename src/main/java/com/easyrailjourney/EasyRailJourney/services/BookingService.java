@@ -2,16 +2,14 @@ package com.easyrailjourney.EasyRailJourney.services;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.easyrailjourney.EasyRailJourney.Dtos.BookingDtos.BookingPassengerReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.BookingDtos.BookingResponseDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.BookingDtos.CreateBookingReqDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.BookingDtos.GeneralBookingReqDto;
@@ -71,10 +69,10 @@ public class BookingService {
 
     private final FareCalculationService fareCalculationService;
 
-    private final  RefundService refundService;
+    private final RefundService refundService;
 
     private final TicketService ticketService;
-    
+
     private final NotificationService notificationService;
 
     public BookingService(
@@ -113,7 +111,6 @@ public class BookingService {
     // VALIDATION
     // =========================================================
 
-
     public Boolean validation(GeneralBookingReqDto reqDto)
             throws Exception {
 
@@ -134,7 +131,7 @@ public class BookingService {
                                         "Schedule train not found.")
                         );
 
-        if (scheduleTrain.getIsDeleted()) {
+        if (Boolean.TRUE.equals(scheduleTrain.getIsDeleted())) {
             throw new Exception(
                     "Schedule train is deleted.");
         }
@@ -166,7 +163,7 @@ public class BookingService {
                         .orElseThrow(
                                 () -> new Exception(
                                         "Source station does not exist "
-                                        + "in this schedule train.")
+                                                + "in this schedule train.")
                         );
 
         // ---------------------------------------------
@@ -182,7 +179,7 @@ public class BookingService {
                         .orElseThrow(
                                 () -> new Exception(
                                         "Destination station does not exist "
-                                        + "in this schedule train.")
+                                                + "in this schedule train.")
                         );
 
         // ---------------------------------------------
@@ -207,6 +204,11 @@ public class BookingService {
                     "Train class is required.");
         }
 
+        if (reqDto.getScheduleTrainClassId() == null) {
+            throw new Exception(
+                    "Schedule train class id is required.");
+        }
+
         ScheduleTrainClass trainClass =
                 scheduleTrainClassRepo
                         .findById(reqDto.getScheduleTrainClassId())
@@ -229,7 +231,9 @@ public class BookingService {
         // SEAT AVAILABILITY
         // ---------------------------------------------
 
-        if (reqDto.getNumberOfSeats() <= 0) {
+        if (reqDto.getNumberOfSeats() == null
+                || reqDto.getNumberOfSeats() <= 0) {
+
             throw new Exception(
                     "Number of seats must be greater than zero.");
         }
@@ -247,21 +251,26 @@ public class BookingService {
                     "Required number of seats are not available.");
         }
 
-        if (sourceScheduleStation.getDepartureTime().compareTo(new Date()) <= 0) {
-                throw new Exception("Cannot book: train has already departed.");
+        if (sourceScheduleStation.getDepartureTime() == null) {
+            throw new Exception(
+                    "Source station departure time is not available.");
         }
 
-        
+        if (sourceScheduleStation.getDepartureTime()
+                .compareTo(new Date()) <= 0) {
+
+            throw new Exception(
+                    "Cannot book: train has already departed.");
+        }
 
         return true;
-    } 
+    }
 
     // =========================================================
     // CREATE BOOKING
     // =========================================================
 
-    @Transactional
-
+    @Transactional(rollbackFor = Exception.class)
     public Bookings createBooking(CreateBookingReqDto reqDto)
             throws Exception {
 
@@ -274,13 +283,31 @@ public class BookingService {
                     "Booking request is required.");
         }
 
+        if (reqDto.getScheduleTrainId() == null) {
+            throw new Exception(
+                    "Schedule train id is required.");
+        }
+
+        if (reqDto.getSourceStationId() == null
+                || reqDto.getDestinationStationId() == null) {
+
+            throw new Exception(
+                    "Source station and destination station are required.");
+        }
+
         if (reqDto.getSourceStationId()
                 .equals(reqDto.getDestinationStationId())) {
 
             throw new Exception(
                     "Source and destination station cannot be same.");
         }
-        
+
+        if (reqDto.getNumberOfSeats() == null
+                || reqDto.getNumberOfSeats() <= 0) {
+
+            throw new Exception(
+                    "Number of seats must be greater than zero.");
+        }
 
         // ---------------------------------------------
         // SCHEDULE TRAIN
@@ -293,46 +320,41 @@ public class BookingService {
                                         "Schedule train not found.")
                         );
 
-        if (train.getIsDeleted()) {
+        if (Boolean.TRUE.equals(train.getIsDeleted())) {
             throw new Exception(
                     "Schedule train is deleted.");
         }
 
         // ---------------------------------------------
-        // SOURCE STATION
+        // SOURCE AND DESTINATIN STATION
         // ---------------------------------------------
 
         ScheduleTrainStation src =
-                scheduleTrainStationRepo
-                        .findByScheduleTrainIdAndStationId(
-                                train.getId(),
-                                reqDto.getSourceStationId()
+        scheduleTrainStationRepo
+                .findByScheduleTrainIdAndStationId(
+                        train.getId(),
+                        reqDto.getSourceStationId()
+                )
+                .orElseThrow(
+                        () -> new Exception(
+                                "Source station does not exist in this schedule train."
                         )
-                        .orElseThrow(
-                                () -> new Exception(
-                                        "Source station does not exist "
-                                        + "in this schedule train.")
-                        );
+                );
 
-        // ---------------------------------------------
-        // DESTINATION STATION
-        // ---------------------------------------------
-
-        ScheduleTrainStation dst =
-                scheduleTrainStationRepo
-                        .findByScheduleTrainIdAndStationId(
-                                train.getId(),
-                                reqDto.getDestinationStationId()
+ScheduleTrainStation dst =
+        scheduleTrainStationRepo
+                .findByScheduleTrainIdAndStationId(
+                        train.getId(),
+                        reqDto.getDestinationStationId()
+                )
+                .orElseThrow(
+                        () -> new Exception(
+                                "Destination station does not exist in this schedule train."
                         )
-                        .orElseThrow(
-                                () -> new Exception(
-                                        "Destination station does not "
-                                        + "exist in this schedule train.")
-                        );
-
+                );
 
         // ---------------------------------------------
-        // ROUTE ORDER AND BOOKING TIMING
+        // ROUTE ORDER
         // ---------------------------------------------
 
         if (src.getStationSequence()
@@ -342,15 +364,30 @@ public class BookingService {
                     "Source station must come before destination station.");
         }
 
+        // ---------------------------------------------
+        // BOOKING TIMING
+        // ---------------------------------------------
 
-        if (src.getDepartureTime().compareTo(new Date()) <= 0) {
-                throw new Exception("Cannot book: train has already departed.");
+        if (src.getDepartureTime() == null) {
+            throw new Exception(
+                    "Source station departure time is not available.");
         }
 
+        if (src.getDepartureTime()
+                .compareTo(new Date()) <= 0) {
+
+            throw new Exception(
+                    "Cannot book: train has already departed.");
+        }
 
         // ---------------------------------------------
         // TRAIN CLASS
         // ---------------------------------------------
+
+        if (reqDto.getScheduleTrainClassId() == null) {
+            throw new Exception(
+                    "Schedule train class id is required.");
+        }
 
         ScheduleTrainClass trainClass =
                 scheduleTrainClassRepo
@@ -370,19 +407,69 @@ public class BookingService {
             );
         }
 
-
         // ---------------------------------------------
         // USER
         // ---------------------------------------------
 
+        if (reqDto.getUserEmail() == null
+                || reqDto.getUserEmail().isBlank()) {
+
+            throw new Exception(
+                    "User email is required.");
+        }
+
         Users user =
-                userRepo.findByEmailAndIsDeletedFalse(
+                userRepo.findByEmail(
                         reqDto.getUserEmail()
+                     
                 )
                 .orElseThrow(
                         () -> new Exception(
                                 "User not registered or account is deleted.")
                 );
+
+        // ---------------------------------------------
+        // PASSENGER VALIDATION
+        // ---------------------------------------------
+
+        List<BookingPassengerReqDto> passengerDtos =
+                reqDto.getPassengers();
+
+        if (passengerDtos == null
+                || passengerDtos.isEmpty()) {
+
+            throw new Exception(
+                    "Passenger details are required.");
+        }
+
+        if (passengerDtos.size()
+                != reqDto.getNumberOfSeats()) {
+
+            throw new Exception(
+                    "Number of passengers must match number of seats.");
+        }
+
+        for (BookingPassengerReqDto bp : passengerDtos) {
+
+            if (bp == null) {
+                throw new Exception(
+                        "Passenger details cannot be null.");
+            }
+
+            if (bp.getName() == null
+                    || bp.getName().isBlank()
+                    || bp.getAge() == null
+                    || bp.getGender() == null) {
+
+                throw new Exception(
+                        "Passenger name, age and gender are required.");
+            }
+
+            if (bp.getAge() <= 0) {
+                throw new Exception(
+                        "Passenger age must be greater than zero.");
+            }
+        }
 
         // ---------------------------------------------
         // CALCULATE FARE
@@ -476,65 +563,6 @@ public class BookingService {
         );
 
         // ---------------------------------------------
-        // CREATE PASSENGERS
-        // ---------------------------------------------
-
-        List<BookingPassenger> bookingPassengers =
-                new ArrayList<>();
-
-        HashMap<String, Set<String>> passengerMap =
-                reqDto.getPassengers();
-
-        if (passengerMap != null) {
-
-            for (Map.Entry<String, Set<String>> entry :
-                    passengerMap.entrySet()) {
-
-                String passengerName =
-                        entry.getKey();
-
-                Set<String> details =
-                        entry.getValue();
-
-                if (details == null
-                        || details.isEmpty()) {
-
-                    throw new Exception(
-                            "Passenger age is required for "
-                                    + passengerName);
-                }
-
-                BookingPassenger bookingPassenger =
-                        new BookingPassenger();
-
-                bookingPassenger.setName(
-                        passengerName
-                );
-
-                bookingPassenger.setAge(
-                        Integer.parseInt(
-                                details.iterator().next()
-                        )
-                );
-
-                // =====================================
-                // IMPORTANT FIX
-                // =====================================
-                bookingPassenger.setBooking(
-                        booking
-                );
-
-                bookingPassengers.add(
-                        bookingPassenger
-                );
-            }
-        }
-
-        booking.setPassengers(
-                bookingPassengers
-        );
-
-        // ---------------------------------------------
         // SAVE BOOKING FIRST
         // ---------------------------------------------
 
@@ -544,19 +572,11 @@ public class BookingService {
                 );
 
         // ---------------------------------------------
-        // SAVE PASSENGERS
-        // ---------------------------------------------
-
-        if (!bookingPassengers.isEmpty()) {
-
-            bookingPassengerRepo.saveAll(
-                    bookingPassengers
-            );
-        }
-
-
-                // ---------------------------------------------
-        // SEAT AVAILABILITY
+        // FIND AVAILABLE SEATS
+        //
+        // Booking is already saved, so booking.getId()
+        // is available for your existing findSeat(...)
+        // method.
         // ---------------------------------------------
 
         List<ScheduleTrainClassSeat> seats =
@@ -577,8 +597,12 @@ public class BookingService {
         // TEMPORARILY LOCK SEATS
         // ---------------------------------------------
 
-        for (ScheduleTrainClassSeat seat :
-                seats) {
+        for (ScheduleTrainClassSeat seat : seats) {
+
+            if (seat == null) {
+                throw new Exception(
+                        "Invalid seat found.");
+            }
 
             seat.setSeatStatus(
                     SeatStatus.LOCKED
@@ -586,11 +610,71 @@ public class BookingService {
         }
 
         // ---------------------------------------------
+        // CREATE PASSENGERS
+        // AND ASSIGN ONE SEAT TO EACH PASSENGER
+        // ---------------------------------------------
+
+        List<BookingPassenger> bookingPassengers =
+                new ArrayList<>();
+
+        for (int i = 0; i < passengerDtos.size(); i++) {
+
+            BookingPassengerReqDto bp =
+                    passengerDtos.get(i);
+
+            ScheduleTrainClassSeat seat =
+                    seats.get(i);
+
+            BookingPassenger bookingPassenger =
+                    new BookingPassenger();
+
+            bookingPassenger.setName(
+                    bp.getName()
+            );
+
+            bookingPassenger.setAge(
+                    bp.getAge()
+            );
+
+            bookingPassenger.setGender(
+                    bp.getGender()
+            );
+
+            bookingPassenger.setBooking(
+                    booking
+            );
+
+
+            bookingPassenger.setSeat(
+                    seat
+            );
+
+
+            bookingPassengers.add(
+                    bookingPassenger
+            );
+        }
+
+        booking.setPassengers(
+                bookingPassengers
+        );
+
+        // ---------------------------------------------
+        // SAVE PASSENGERS
+        // ---------------------------------------------
+
+        if (!bookingPassengers.isEmpty()) {
+
+            bookingPassengerRepo.saveAll(
+                    bookingPassengers
+            );
+        }
+
+        // ---------------------------------------------
         // CREATE PAYMENT
         // ---------------------------------------------
 
-        PaymentCreateReqDto paymentCreateReqDto =
-                new PaymentCreateReqDto();
+        PaymentCreateReqDto paymentCreateReqDto =  new PaymentCreateReqDto();
 
         paymentCreateReqDto.setBookingId(
                 booking.getId()
@@ -620,10 +704,7 @@ public class BookingService {
                 reqDto.getSenderAccountNumber()
         );
 
-        Payment payment =
-                paymentService.createPayment(
-                        paymentCreateReqDto
-                );
+        Payment payment = paymentService.createPayment( paymentCreateReqDto );
 
         // ---------------------------------------------
         // PAYMENT SUCCESS
@@ -651,7 +732,8 @@ public class BookingService {
 
                 /*
                  * Production system:
-                 * trigger refund here.
+                 * payment was successful but allocation failed.
+                 * Refund should be triggered here.
                  */
 
                 throw new Exception(
@@ -669,6 +751,8 @@ public class BookingService {
                     booking
             );
 
+            // Because @Transactional uses rollbackFor = Exception.class,
+            // booking/passenger/seat DB changes will roll back.
             throw new Exception(
                     "Payment failed.");
         }
@@ -712,12 +796,14 @@ public class BookingService {
 
         response.setSourceStation(
                 booking.getSourceStation()
-                        .getStation().getName()
+                        .getStation()
+                        .getName()
         );
 
         response.setDestinationStation(
                 booking.getDestinationStation()
-                .getStation().getName()
+                        .getStation()
+                        .getName()
         );
 
         response.setUserName(
@@ -787,31 +873,42 @@ public class BookingService {
 
         bookingsRepo.save(booking);
 
+        // =========================================================
+        // TICKET GENERATE
+        // =========================================================
 
-    // =========================================================
-    // TICKET GENERATE
-    // =========================================================
+        Ticket ticket = null;
 
-    Ticket ticket = null;
         try {
-         // add aspect 
-        ticket = ticketService.syncTicket(booking.getId());  
 
-        System.out.println(ticket.getPnr() + " Ticket PNR");
+                System.out.print(booking.getPnr());
+            // add aspect
+            ticket =
+                    ticketService.syncTicket(
+                            booking.getId()
+                    );
+
+            System.out.println(
+                    ticket.getPnr()
+                            + " Ticket PNR"
+            );
+
         } catch (Exception e) {
-                System.out.println("ticket did not generated");
-                // retry logic 
-                // TODO: handle exception
+
+            System.out.println(
+                    "ticket did not generated"
+            );
+
+            // retry logic
+            // TODO: handle exception
         }
 
-
-
-    // =========================================================
-    // NOTIFICATION CREATED AND SEND
-    // =========================================================
+        // =========================================================
+        // NOTIFICATION CREATED AND SEND
+        // =========================================================
 
         NotificationDto notification =
-        new NotificationDto();
+                new NotificationDto();
 
         notification.setType(
                 NotificationType.EMAIL
@@ -827,22 +924,26 @@ public class BookingService {
 
         notification.setText(
                 "Your booking has been created. "
-                + "PNR: "
-                + booking.getPnr()
+                        + "PNR: "
+                        + booking.getPnr()
         );
 
-        notification.setPnr(booking.getPnr());
-
-        notification.setTicket(ticket);
-
-        Boolean ans = notificationService.sendNotification(
-                notification
+        notification.setPnr(
+                booking.getPnr()
         );
 
-        if(!ans){
-                // retry
+        notification.setTicket(
+                ticket
+        );
+
+        Boolean ans =
+                notificationService.sendNotification(
+                        notification
+                );
+
+        if (!ans) {
+            // retry
         }
-
 
         return response;
     }
@@ -879,97 +980,119 @@ public class BookingService {
     // =========================================================
     // CANCEL BOOKING
     // =========================================================
-    @Transactional
+
+    @Transactional(rollbackFor = Exception.class)
     public boolean cancelBooking(Long bookingId) {
 
-    Bookings booking = bookingsRepo.findById(bookingId)
-            .orElseThrow(() ->
-                    new RuntimeException("Booking not found."));
+        Bookings booking =
+                bookingsRepo.findById(bookingId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Booking not found."
+                                ));
 
-    booking.setBookingStatus(BookingStatus.CANCELLED);
+        booking.setBookingStatus(
+                BookingStatus.CANCELLED
+        );
 
-    for (BookingPassenger bp : booking.getPassengers()) {
+        for (BookingPassenger bp :
+                booking.getPassengers()) {
 
-        if (BookingStatus.BOOKED.equals(
-                bp.getPassangerBookingStatus())) {
+            if (BookingStatus.BOOKED.equals(
+                    bp.getPassangerBookingStatus())) {
 
-            ScheduleTrainClassSeat seat = bp.getSeat();
+                ScheduleTrainClassSeat seat =
+                        bp.getSeat();
 
-            // Cancel current confirmed passenger
-            seat.setSeatbookingStatus(
-                    SeatBookingStatus.EMPTY
-            );
-
-            bp.setPassangerBookingStatus(
-                    BookingStatus.CANCELLED
-            );
-
-            // Find next waitlisted passenger
-            Optional<SeatWaitlist> waitlist =
-                    waitlistService.findNextPassenger(seat);
-
-            if (waitlist.isPresent()) {
-
-                SeatWaitlist next = waitlist.get();
-
-                BookingPassenger bp2 = next.getPassenger();
-
-                // Promote waitlisted passenger
-                seat.setSeatbookingStatus(
-                        SeatBookingStatus.BOOKED
-                );
-
-                seat.setSeatStatus(
-                        SeatStatus.UNLOCKED
-                );
-
-                bp2.setSeat(seat);
-
-                bp2.setPassangerBookingStatus(
-                        BookingStatus.BOOKED
-                );
-
-                try {
-                        waitlistService.removeFromWaitlist(next.getId());
-                } catch (Exception e) {
-                }
-    
-
-            } else {
-
-                // Nobody waiting
+                // Cancel current confirmed passenger
                 seat.setSeatbookingStatus(
                         SeatBookingStatus.EMPTY
                 );
 
-                seat.setSeatStatus(
-                        SeatStatus.UNLOCKED
+                bp.setPassangerBookingStatus(
+                        BookingStatus.CANCELLED
                 );
+
+                // Find next waitlisted passenger
+                Optional<SeatWaitlist> waitlist =
+                        waitlistService.findNextPassenger(
+                                seat
+                        );
+
+                if (waitlist.isPresent()) {
+
+                    SeatWaitlist next =
+                            waitlist.get();
+
+                    BookingPassenger bp2 =
+                            next.getPassenger();
+
+                    // Promote waitlisted passenger
+                    seat.setSeatbookingStatus(
+                            SeatBookingStatus.BOOKED
+                    );
+
+                    seat.setSeatStatus(
+                            SeatStatus.UNLOCKED
+                    );
+
+                    bp2.setSeat(
+                            seat
+                    );
+
+                    bp2.setPassangerBookingStatus(
+                            BookingStatus.BOOKED
+                    );
+
+                    try {
+
+                        waitlistService.removeFromWaitlist(
+                                next.getId()
+                        );
+
+                    } catch (Exception e) {
+                        // keep existing behavior
+                    }
+
+                } else {
+
+                    // Nobody waiting
+                    seat.setSeatbookingStatus(
+                            SeatBookingStatus.EMPTY
+                    );
+
+                    seat.setSeatStatus(
+                            SeatStatus.UNLOCKED
+                    );
+                }
+
+            } else if (BookingStatus.WAITLISTED.equals(
+                    bp.getPassangerBookingStatus())) {
+
+                // Just cancel the waitlisted passenger
+                bp.setPassangerBookingStatus(
+                        BookingStatus.CANCELLED
+                );
+
+                /*
+                 * Do NOT change seat status here.
+                 *
+                 * Waitlisted passenger does not own
+                 * a physical seat yet.
+                 */
             }
-
-        } else if (BookingStatus.WAITLISTED.equals(
-                bp.getPassangerBookingStatus())) {
-
-            // Just cancel the waitlisted passenger
-            bp.setPassangerBookingStatus(
-                    BookingStatus.CANCELLED
-            );
-
-            /*
-             * Do NOT change seat status here.
-             *
-             * Waitlisted passenger does not own a physical seat yet.
-             */
         }
+
+        bookingsRepo.save(
+                booking
+        );
+
+        // check if cancellation time > schedule train time
+        // then deny refund
+        refundService.processRefund(
+                bookingId
+        );
+
+        return true;
     }
-
-    bookingsRepo.save(booking);
-
-    // check if cancellation time > schedule train time then deny refund
-
-    refundService.processRefund(bookingId);
-
-    return true;
 }
-
-};

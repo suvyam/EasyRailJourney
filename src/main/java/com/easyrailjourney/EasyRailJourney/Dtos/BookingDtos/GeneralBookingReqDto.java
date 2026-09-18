@@ -19,7 +19,7 @@ public class GeneralBookingReqDto { // delete,update or for validate quierys
 
    String trainClass;
 
-   int numberOfSeats;
+   Integer numberOfSeats;
 
    Long scheduleTrainClassId;
 

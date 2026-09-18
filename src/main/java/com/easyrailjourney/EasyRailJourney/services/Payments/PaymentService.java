@@ -1,5 +1,6 @@
 package com.easyrailjourney.EasyRailJourney.services.Payments;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -119,7 +120,7 @@ public class PaymentService {
         // =====================================================
 
         Optional<Users> userOptional =
-                userRepo.findByEmail(authenticatedUsername);
+                userRepo.findByProfileNameAndIsDeleted(authenticatedUsername, false);
 
         if (userOptional.isEmpty()) {
             throw new Exception(
@@ -268,6 +269,8 @@ public class PaymentService {
 
         payment.setStatus(
                 PaymentStatus.CREATED);
+
+                payment.setPaymentInitiatedAt(new Date());
 
         paymentRepo.save(payment);
 

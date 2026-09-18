@@ -84,6 +84,5 @@ public class Bookings extends BaseModel {
     @Column (nullable=false)
     Double totalFare; // update in bookings
 
-    @Column (nullable=false)
     String pnr;
 }

@@ -43,18 +43,37 @@ public class GeneralFareCalculationStrategy implements FareCalculationStrategy {
         ).orElseThrow(() ->
                 new RuntimeException("Source station not found")
         );
-
-        List<FareRule> rules =
-                fareRuleRepo.findByClassTypeAndActiveTrueOrderByPriorityDesc(
-                        request.getClassType()
+    
+        Long stateId = sourceStation
+                .getCity()
+                .getState()
+                .getId();
+    
+                List<FareRule> rules =
+                fareRuleRepo.findApplicableFareRules(
+                        train.getId(),
+                        stateId,
+                        request.getClassType().getId()
                 );
-
+        
+        if (rules.isEmpty()) {
+            throw new RuntimeException(
+                    "No fare rule found for train="
+                    + train.getId()
+                    + ", state="
+                    + stateId
+                    + ", class="
+                    + request.getClassType().getId()
+            );
+        }
+        
+    
         FareRule applicableRule = findApplicableRule(
                 rules,
                 train,
                 sourceStation
         );
-
+    
         if (applicableRule == null) {
             throw new RuntimeException(
                     "No fare rule found for this train/class/state"
@@ -112,10 +131,10 @@ public class GeneralFareCalculationStrategy implements FareCalculationStrategy {
                     rule.getTrain() == null
                     || rule.getTrain().getId().equals(train.getId());
 
-            boolean stateMatches =
+             boolean stateMatches =
                     rule.getState() == null
                     || rule.getState().getId()
-                    .equals(sourceStation.getCity().getId());
+                            .equals(sourceStation.getCity().getState().getId());
 
             if (trainMatches && stateMatches) {
                 return rule;
@@ -127,16 +146,36 @@ public class GeneralFareCalculationStrategy implements FareCalculationStrategy {
 
     private Double calculateFare(FareRule rule) {
 
-        if (rule.getCalculationType() == FareCalculationType.FIXED) {
+        Double baseFare = rule.getBaseFare();
 
-                return Math.round(rule.getValue() * 100.0) / 100.0;
-        }
 
-        throw new RuntimeException(
-                "Calculation type not implemented yet: "
-                        + rule.getCalculationType()
-        );
-    }
+                if (rule.getCalculationType() == FareCalculationType.FIXED) {
+                    return round(baseFare + rule.getValue());
+                }
+            
+                if (rule.getCalculationType() == FareCalculationType.PERCENTAGE) {
+                    double percentageAmount = baseFare * rule.getValue() / 100.0;
+                    return round(baseFare + percentageAmount);
+                }
+            
+                if (rule.getCalculationType() == FareCalculationType.MULTIPLIER) {
+                    return round(baseFare * rule.getValue());
+                }
+            
+                if (rule.getCalculationType() == FareCalculationType.PER_KM) {
+                    throw new RuntimeException(
+                        "PER_KM calculation requires journey distance"
+                    );
+                }
+            
+                throw new RuntimeException(
+                    "Unsupported calculation type: " + rule.getCalculationType()
+                );
+            }
+            
+            private Double round(Double value) {
+                return Math.round(value * 100.0) / 100.0;
+            }
 
     private String buildRuleDescription(
             FareRule rule,

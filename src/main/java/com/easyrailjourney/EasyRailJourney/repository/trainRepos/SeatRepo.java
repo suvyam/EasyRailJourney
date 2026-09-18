@@ -14,6 +14,11 @@ import com.easyrailjourney.EasyRailJourney.models.trainOperation.Seat;
 
 public interface SeatRepo extends JpaRepository<Seat, Long> {
 
+
+    List<Seat> findByCoach_IdAndIsDeletedFalse(Long coachId);
+
+    
+
     Optional<Seat> findByCoachAndSeatNumber(
             Coach coach,
             String seatNumber

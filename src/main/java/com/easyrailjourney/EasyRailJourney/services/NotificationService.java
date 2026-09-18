@@ -1,7 +1,6 @@
 package com.easyrailjourney.EasyRailJourney.services;
 import java.util.List;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.easyrailjourney.EasyRailJourney.Dtos.NotificationDto;
@@ -23,8 +22,6 @@ public class NotificationService {
     }
 
     
-
-    @PreAuthorize ("hasAuthority('SEND_NOTIFICATION')")
     public boolean sendNotification( NotificationDto request) {
 
 

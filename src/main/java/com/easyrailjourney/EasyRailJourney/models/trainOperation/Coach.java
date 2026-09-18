@@ -19,8 +19,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-
-
 public class Coach extends BaseModel {
 
     @NotBlank(message = "Coach number is required")

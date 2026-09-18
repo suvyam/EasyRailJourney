@@ -155,6 +155,8 @@ public class ScheduleTrainCoachService {
         scheduleTrainCoachRepo.save(entity);
 
         // CREATE SEAT RECORDS FOR NEW ASSIGNMENT
+
+        System.out.println("hh");
         List<ScheduleTrainClassSeat> seats =
                 entity.getCoach().getSeats()
                 .stream()

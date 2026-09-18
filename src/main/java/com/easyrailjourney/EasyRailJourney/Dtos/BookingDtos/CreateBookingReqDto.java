@@ -1,8 +1,8 @@
 package com.easyrailjourney.EasyRailJourney.Dtos.BookingDtos;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.List;
 
 import com.easyrailjourney.EasyRailJourney.enums.Bookings.BookingStatus;
 
@@ -31,7 +31,7 @@ public class CreateBookingReqDto {
     private Long scheduleTrainClassId;
 
     @Min(value = 1, message = "Number of seats must be at least 1.")
-    private int numberOfSeats;
+    private Integer numberOfSeats;
 
     @NotNull(message = "Booking date is required.")
     private Date bookingDate;
@@ -45,17 +45,21 @@ public class CreateBookingReqDto {
 
     private String paymentStatus;
 
+    @NotNull (message = "Payment mode required")
     private String paymentMode;
 
+    @NotNull (message = "Payment  method  required")
     private String paymentMethod;
 
+    @NotBlank (message="Please provide train class")
     private String trainClass;
 
     private Double totalFare;
 
     private String pnr;
 
-    private HashMap<String, Set<String>> passengers = new HashMap<>();
+    @NotBlank(message="please add passenger details for booking")
+    private List<BookingPassengerReqDto> passengers = new ArrayList<>();
 
-    String senderAccountNumber;
+    String senderAccountNumber; 
 }

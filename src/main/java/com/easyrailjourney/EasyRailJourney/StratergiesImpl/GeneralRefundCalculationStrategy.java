@@ -43,15 +43,20 @@ public class GeneralRefundCalculationStrategy
          * Get the ScheduleTrainStation for the booked
          * source station.
          */
-        ScheduleTrainStation sourceScheduleStation =
-                scheduleTrainStationRepo
-                        .findByScheduleTrainIdAndStationId(
-                                booking.getScheduleTrain().getId(),
-                                booking.getSourceStation().getId()
-                        )
-                        .orElseThrow(() -> new RuntimeException(
-                                "Source station schedule not found"
-                        ));
+
+        System.out.println(
+                "Schedule ID = " +
+                booking.getScheduleTrain().getId()
+            );
+            
+            System.out.println(
+                "Source Station ID = " +
+                booking.getSourceStation().getId()
+            );
+       
+
+            ScheduleTrainStation sourceScheduleStation = booking.getSourceStation();
+                        
 
         /*
          * Departure time of the station from which

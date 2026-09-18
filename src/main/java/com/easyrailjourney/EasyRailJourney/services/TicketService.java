@@ -36,7 +36,7 @@ public class TicketService {
     public Ticket syncTicket(Long bookingId) throws Exception{
 
 
-       Bookings booking = bookingsRepo.findById(bookingId).orElseThrow(()-> new IllegalArgumentException("Booking Found"));
+       Bookings booking = bookingsRepo.findById(bookingId).orElseThrow(()-> new IllegalArgumentException("Booking Not Found"));
 
        List<BookingPassenger> bookingPassengers = booking.getPassengers();
 
@@ -65,6 +65,7 @@ public class TicketService {
 
        }
 
+
        Ticket ticket = null;
 
         Optional<Ticket> ticketOptional = ticketRepo.findByPnr(booking.getPnr());
@@ -79,10 +80,14 @@ public class TicketService {
 
        ticket.setTicketPassenger(AllTicketPassangers);
 
-       if(ticket.getIssuedAt()!=null)ticket.setIssuedAt(new Date());
+       if(ticket.getIssuedAt()==null)ticket.setIssuedAt(new Date());
 
+       ticket.setSeatCount(booking.getNumberOfSeats());
+       
        ticketRepo.save(ticket);
 
+       System.out.println("called ticket");
+       
        return ticket;
 
     }
