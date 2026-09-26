@@ -1,5 +1,6 @@
 package com.easyrailjourney.EasyRailJourney.StratergiesImpl.NotificationImpl;
 
+
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -21,94 +22,269 @@ public class EmailNotificationImpl
         implements NotificationStratergy {
 
 
-
     private final JavaMailSender javaMailSender;
+
     private final BookingsRepo bookingsRepo;
 
 
-    public EmailNotificationImpl(JavaMailSender javaMailSender, BookingsRepo bookingsRepo){
-        this.bookingsRepo = bookingsRepo;
-        this.javaMailSender = javaMailSender;
+    public EmailNotificationImpl(
+            JavaMailSender javaMailSender,
+            BookingsRepo bookingsRepo) {
+
+        this.javaMailSender =
+                javaMailSender;
+
+        this.bookingsRepo =
+                bookingsRepo;
     }
 
 
+    // =====================================================
+    // MATCH
+    // =====================================================
 
     @Override
-    public boolean isMatch(NotificationDto notificationDto) {
+    public boolean isMatch(
+            NotificationDto notificationDto) {
 
-         if(NotificationType.EMAIL.equals(
-    
+        return NotificationType.EMAIL.equals(
                 notificationDto.getType()
-        )){
-            System.err.println("EMAIL MATCH");
-            return true;
-        }
-
-        return false;
+        );
     }
 
+
+    // =====================================================
+    // SEND
+    // =====================================================
+
     @Override
-    public boolean send(NotificationDto notificationDto) {
+    public boolean send(
+            NotificationDto notificationDto) {
 
         try {
 
-            MimeMessage message = javaMailSender.createMimeMessage();
-            
+            MimeMessage message =
+                    javaMailSender.createMimeMessage();
 
-            Ticket ticket = notificationDto.getTicket();
-            String pnr = notificationDto.getPnr();
-            Bookings bookings = bookingsRepo.findByPnr(pnr);
-            
-
-            StringBuilder passengerDetails = new StringBuilder();
-
-            for (TicketPassenger tp : ticket.getTicketPassenger()) {
-
-                passengerDetails.append(
-                    "<hr>" +
-                    "<p><b>Passenger:</b> " + tp.getName() + "</p>" +
-                    "<p><b>Age:</b> " + tp.getAge() + "</p>" +
-                    "<p><b>Train:</b> " + tp.getTrainName() +
-                    " (" + tp.getTrainNumber() + ")</p>" +
-                    "<p><b>Class:</b> " + bookings.getTrainClass().getClass().getName() + "</p>" +
-                    "<p><b>Coach:</b> " + tp.getCoachNumber() + "</p>" +
-                    "<p><b>Seat:</b> " + tp.getSeatNumber() + "</p>" +
-                    "<p><b>From:</b> " + tp.getDepartureStationName() + "</p>" +
-                    "<p><b>To:</b> " + tp.getArrivalStationName() + "</p>" +
-                    "<p><b>Departure:</b> " + tp.getDepartureTime() + "</p>" +
-                    "<p><b>Arrival:</b> " + tp.getArrivalTime() + "</p>" +
-                    "<p><b>Status:</b> " + tp.getBookingStatus() + "</p>"
-                );
-            }
-            
             MimeMessageHelper helper =
-                    new MimeMessageHelper(message, true);
-            
-            helper.setTo(notificationDto.getTo());
-            
+                    new MimeMessageHelper(
+                            message,
+                            true
+                    );
+
+
+            helper.setTo(
+                    notificationDto.getTo()
+            );
+
+
+            /*
+             * This key identifies one logical notification.
+             *
+             * Example:
+             *
+             * RESCHEDULE-15-BOOKING-100
+             */
+            String notificationKey =
+                    notificationDto.getNotificationKey();
+
+            System.out.println(
+                    "Notification key = "
+                            + notificationKey
+            );
+
+
+            // =================================================
+            // RESCHEDULE NOTIFICATION
+            // =================================================
+
+            if (notificationDto.getTicket() == null) {
+
+                helper.setSubject(
+                        "EasyRailJourney - Schedule Change"
+                );
+
+
+                String text =
+                        notificationDto.getText();
+
+
+                if (text == null
+                        || text.isBlank()) {
+
+                    text =
+                            "Your train schedule has been changed.";
+                }
+
+
+                helper.setText(
+                        text.replace(
+                                "\n",
+                                "<br>"
+                        ),
+                        true
+                );
+
+
+                javaMailSender.send(
+                        message
+                );
+
+
+                return true;
+            }
+
+
+            // =================================================
+            // BOOKING CONFIRMATION
+            // =================================================
+
+            Ticket ticket =
+                    notificationDto.getTicket();
+
+
+            String pnr =
+                    notificationDto.getPnr();
+
+
+            Bookings booking =
+                    bookingsRepo.findByPnr(
+                            pnr
+                    );
+
+
+            StringBuilder passengerDetails =
+                    new StringBuilder();
+
+
+            if (ticket.getTicketPassenger() != null) {
+
+                for (TicketPassenger tp :
+                        ticket.getTicketPassenger()) {
+
+                    passengerDetails.append(
+                            "<hr>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Passenger:</b> "
+                                    + tp.getName()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Age:</b> "
+                                    + tp.getAge()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Train:</b> "
+                                    + tp.getTrainName()
+                                    + " ("
+                                    + tp.getTrainNumber()
+                                    + ")</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Class:</b> "
+                                    + booking.getTrainClass()
+                                            .getClass()
+                                            .getName()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Coach:</b> "
+                                    + tp.getCoachNumber()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Seat:</b> "
+                                    + tp.getSeatNumber()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>From:</b> "
+                                    + tp.getDepartureStationName()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>To:</b> "
+                                    + tp.getArrivalStationName()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Departure:</b> "
+                                    + tp.getDepartureTime()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Arrival:</b> "
+                                    + tp.getArrivalTime()
+                                    + "</p>"
+                    );
+
+
+                    passengerDetails.append(
+                            "<p><b>Status:</b> "
+                                    + tp.getBookingStatus()
+                                    + "</p>"
+                    );
+                }
+            }
+
+
             helper.setSubject(
                     "EasyRailJourney - Booking Confirmation"
             );
-            
+
+
             helper.setText(
-                "<h2>Booking Created</h2>" +
-                "<p>Your booking has been successfully created.</p>" +
-                "<p><b>PNR:</b> " + pnr + "</p>" +
-                passengerDetails,
-                true
+                    "<h2>Booking Created</h2>"
+                            + "<p>Your booking has been "
+                            + "successfully created.</p>"
+                            + "<p><b>PNR:</b> "
+                            + pnr
+                            + "</p>"
+                            + passengerDetails,
+                    true
             );
 
-    javaMailSender.send(message);
 
-    return true;
+            javaMailSender.send(
+                    message
+            );
 
-} catch (MessagingException | MailException e) {
 
-    System.err.println(
-            "Failed to send email: " + e.getMessage()
-    );
+            return true;
 
-    return false;
-}
+
+        } catch (
+                MessagingException
+                        | MailException e) {
+
+            System.err.println(
+                    "Failed to send email: "
+                            + e.getMessage()
+            );
+
+            return false;
+        }
     }
 }

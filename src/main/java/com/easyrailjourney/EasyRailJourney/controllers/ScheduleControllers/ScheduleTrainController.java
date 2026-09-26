@@ -137,7 +137,7 @@ public class ScheduleTrainController {
     // UPDATE SCHEDULE----
     @PutMapping
     @PreAuthorize("hasAuthority('UPDATE_SCHEDULE')")
-    public ResponseEntity<GeneralScheduleRespDto> updateSchedule(
+    public ResponseEntity<GeneralScheduleRespDto> updateScheduleTrainTime(
             @RequestBody ScheduleUpdateReqDto reqDto) {
 
         GeneralScheduleRespDto respDto = new GeneralScheduleRespDto();
@@ -150,6 +150,7 @@ public class ScheduleTrainController {
 
                 respDto.setMessage("Successfully Updated");
                 respDto.setResponseStatus(ResponseStatus.SUCCESS);
+                return ResponseEntity.ok().body(respDto);
 
             } else {
 
@@ -165,6 +166,9 @@ public class ScheduleTrainController {
 
         return ResponseEntity.badRequest().body(respDto);
     }
+
+
+ // update train now check seats , train name, bookings waitlist,n transfer status
 
 
     // DELETE PERMANENTLY SCHEDULE----

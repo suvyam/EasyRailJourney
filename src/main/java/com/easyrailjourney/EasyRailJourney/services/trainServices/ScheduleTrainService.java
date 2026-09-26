@@ -12,19 +12,19 @@ import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.Schedules.ScheduleDele
 import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.Schedules.ScheduleRespDto;
 import com.easyrailjourney.EasyRailJourney.Dtos.TrainDtos.Schedules.ScheduleUpdateReqDto;
 import com.easyrailjourney.EasyRailJourney.enums.Trains.TrainStatus;
+import com.easyrailjourney.EasyRailJourney.models.bookings.Bookings;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrain;
+import com.easyrailjourney.EasyRailJourney.models.trainOperation.ScheduleTrainStation;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.Station;
 import com.easyrailjourney.EasyRailJourney.models.trainOperation.Train;
+import com.easyrailjourney.EasyRailJourney.repository.BookingsRepo.BookingsRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.ScheduleTrainRepo;
+import com.easyrailjourney.EasyRailJourney.repository.trainRepos.ScheduleTrainStationRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.StationRepo;
 import com.easyrailjourney.EasyRailJourney.repository.trainRepos.TrainRepo;
+import com.easyrailjourney.EasyRailJourney.services.TicketService;
 
 import jakarta.transaction.Transactional;
-
-
-
-
-
 
 
 @Service
@@ -34,17 +34,33 @@ public class ScheduleTrainService {
     private final TrainRepo trainRepo;
     private final StationRepo stationRepo;
     private final ScheduleTrainHistoryService scheduleTrainHistoryService;
+    private final ScheduleTrainStationService scheduleTrainStationHistoryService;
+    private final ScheduleTrainRescheduleEventService scheduleTrainRescheduleEventService;
+    private final BookingsRepo bookingsRepo;
+    private final TicketService ticketService;
+    private final ScheduleTrainStationRepo scheduleTrainStationRepo;
+
 
     public ScheduleTrainService(
             ScheduleTrainRepo scheduleRepository,
             TrainRepo trainRepo,
             StationRepo stationRepo,
-            ScheduleTrainHistoryService scheduleTrainHistoryService) {
+            ScheduleTrainHistoryService scheduleTrainHistoryService,
+            ScheduleTrainStationService scheduleTrainStationHistoryService,
+            ScheduleTrainRescheduleEventService scheduleTrainRescheduleEventService,
+            BookingsRepo bookingsRepo,
+            TicketService ticketService,
+            ScheduleTrainStationRepo scheduleTrainStationRepo) {
 
         this.scheduleRepository = scheduleRepository;
         this.trainRepo = trainRepo;
         this.stationRepo = stationRepo;
         this.scheduleTrainHistoryService = scheduleTrainHistoryService;
+        this.scheduleTrainStationHistoryService= scheduleTrainStationHistoryService;
+        this.scheduleTrainRescheduleEventService = scheduleTrainRescheduleEventService;
+        this.bookingsRepo = bookingsRepo;
+        this.ticketService = ticketService;
+        this.scheduleTrainStationRepo = scheduleTrainStationRepo;
     }
 
     // =====================================================
@@ -156,123 +172,492 @@ public class ScheduleTrainService {
     // UPDATE
     // =====================================================
 
-    @Transactional
-    public boolean updateSchedule(
-            ScheduleUpdateReqDto reqDto) throws Exception {
 
-        Train train = null;
+    
 
-        if (reqDto.getTrainId() != null) {
+    @Transactional(rollbackOn = Exception.class)
+public boolean updateSchedule(
+        ScheduleUpdateReqDto reqDto)
+        throws Exception {
 
-            train = trainRepo.findById(reqDto.getTrainId())
-                    .orElseThrow(() ->
-                            new Exception("Train not found"));
-        }
 
-        Station departureStation = null;
-        Station destinationStation = null;
+    // =====================================================
+    // 1. FIND SCHEDULE
+    // =====================================================
 
-        if (reqDto.getDepartureStationId() != null) {
-
-            departureStation = stationRepo.findById(
-                    reqDto.getDepartureStationId()
+    ScheduleTrain schedule =
+            scheduleRepository.findById(
+                    reqDto.getId()
             ).orElseThrow(() ->
-                    new Exception("Departure station not found"));
+                    new Exception(
+                            "Schedule not found to update"
+                    )
+            );
+
+
+    // =====================================================
+    // 2. FINAL TRAIN
+    // =====================================================
+
+    Train finalTrain =
+            schedule.getTrain();
+
+    if (reqDto.getTrainId() != null) {
+
+        finalTrain =
+                trainRepo.findById(
+                        reqDto.getTrainId()
+                ).orElseThrow(() ->
+                        new Exception(
+                                "Train not found"
+                        )
+                );
+    }
+
+
+    // =====================================================
+    // 3. FINAL DEPARTURE STATION
+    // =====================================================
+
+    Station finalDepartureStation =
+            schedule.getDepartureStation();
+
+    if (reqDto.getDepartureStationId() != null) {
+
+        finalDepartureStation =
+                stationRepo.findById(
+                        reqDto.getDepartureStationId()
+                ).orElseThrow(() ->
+                        new Exception(
+                                "Departure station not found"
+                        )
+                );
+    }
+
+
+    // =====================================================
+    // 4. FINAL DESTINATION STATION
+    // =====================================================
+
+    Station finalDestinationStation =
+            schedule.getDestinationStation();
+
+    if (reqDto.getDestinationStationId() != null) {
+
+        finalDestinationStation =
+                stationRepo.findById(
+                        reqDto.getDestinationStationId()
+                ).orElseThrow(() ->
+                        new Exception(
+                                "Destination station not found"
+                        )
+                );
+    }
+
+
+    // =====================================================
+    // 5. OLD TIMES
+    // =====================================================
+
+    Date oldStartTime =
+            schedule.getJourneyStartTime();
+
+    Date oldEndTime =
+            schedule.getJourneyEstimatedEndTime();
+
+    if (oldStartTime == null
+            || oldEndTime == null) {
+
+        throw new Exception(
+                "Existing journey start/end time is required"
+        );
+    }
+
+
+    // =====================================================
+    // 6. FINAL TIMES
+    // =====================================================
+
+    Date finalStartTime =
+            reqDto.getJourneyStartTime() != null
+                    ? reqDto.getJourneyStartTime()
+                    : oldStartTime;
+
+    Date finalEndTime =
+            reqDto.getJourneyEstimatedEndTime() != null
+                    ? reqDto.getJourneyEstimatedEndTime()
+                    : oldEndTime;
+
+
+    // =====================================================
+    // 7. VALIDATE TIME
+    // =====================================================
+
+    if (!finalStartTime.before(finalEndTime)) {
+
+        throw new Exception(
+                "Journey start time must be before journey estimated end time"
+        );
+    }
+
+
+    // =====================================================
+    // 8. CHECK WHETHER TIME CHANGED
+    // =====================================================
+
+    boolean journeyTimeChanged =
+            !oldStartTime.equals(finalStartTime)
+                    || !oldEndTime.equals(finalEndTime);
+
+
+    // =====================================================
+    // 9. CALCULATE DELTA
+    // =====================================================
+
+    long deltaMillis =
+            finalStartTime.getTime()
+                    - oldStartTime.getTime();
+
+
+    // =====================================================
+    // 10. CHECK OVERLAP
+    // =====================================================
+
+    List<ScheduleTrain> overlappingSchedules =
+            scheduleRepository.findOverlappingSchedules(
+
+                    finalTrain.getId(),
+
+                    finalStartTime,
+
+                    finalEndTime
+            );
+
+
+    for (ScheduleTrain existingSchedule :
+            overlappingSchedules) {
+
+
+        if (existingSchedule.getId()
+                .equals(schedule.getId())) {
+
+            continue;
         }
 
-        if (reqDto.getDestinationStationId() != null) {
 
-            destinationStation = stationRepo.findById(
-                    reqDto.getDestinationStationId()
-            ).orElseThrow(() ->
-                    new Exception("Destination station not found"));
-        }
+        throw new Exception(
+                "Train already has an overlapping schedule "
+                        + "for this time. Conflicting schedule id: "
+                        + existingSchedule.getId()
+        );
+    }
 
-        Optional<ScheduleTrain> scheduleOptional =
-                scheduleRepository.findById(reqDto.getId());
 
-        if (scheduleOptional.isEmpty())
-            throw new Exception("Schedule not found to update");
+    // =====================================================
+    // 11. GET STATIONS
+    // =====================================================
 
-        ScheduleTrain schedule = scheduleOptional.get();
+    List<ScheduleTrainStation> scheduleStations =
+            scheduleTrainStationRepo
+                    .findByScheduleTrain(
+                            schedule
+                    );
 
-        // =====================================================
-        // ARCHIVE OLD STATE BEFORE UPDATE
-        // =====================================================
 
-        scheduleTrainHistoryService.archive(schedule);
+    // =====================================================
+    // 12. GET BOOKINGS
+    // =====================================================
 
-        // =====================================================
-        // CHECK FINAL JOURNEY TIME
-        // =====================================================
+    List<Bookings> bookings =
+            bookingsRepo.findByScheduleTrainId(
+                    schedule.getId()
+            );
 
-        Date finalStartTime =
-                reqDto.getJourneyStartTime() != null
-                        ? reqDto.getJourneyStartTime()
-                        : schedule.getJourneyStartTime();
 
-        Date finalEndTime =
-                reqDto.getJourneyEstimatedEndTime() != null
-                        ? reqDto.getJourneyEstimatedEndTime()
-                        : schedule.getJourneyEstimatedEndTime();
+    if (bookings == null) {
 
-        if (!finalStartTime.before(finalEndTime)) {
+        bookings =
+                new ArrayList<>();
+    }
 
-            throw new Exception(
-                    "Journey start time must be before journey estimated end time"
+
+    // =====================================================
+    // 13. ARCHIVE OLD SCHEDULE
+    // =====================================================
+
+    if (journeyTimeChanged) {
+
+        scheduleTrainHistoryService.archive(
+                schedule
+        );
+    }
+
+
+    // =====================================================
+    // 14. ARCHIVE OLD STATIONS
+    // =====================================================
+
+    if (journeyTimeChanged) {
+
+        for (ScheduleTrainStation station :
+                scheduleStations) {
+
+
+            if (Boolean.TRUE.equals(
+                    station.getIsDeleted())) {
+
+                continue;
+            }
+
+
+            scheduleTrainStationHistoryService.archive(
+                    station
             );
         }
+    }
 
-        // =====================================================
-        // CHECK OVERLAPPING SCHEDULE FOR SAME TRAIN
-        // =====================================================
 
-        Long finalTrainId =
-                reqDto.getTrainId() != null
-                        ? reqDto.getTrainId()
-                        : schedule.getTrain().getId();
+    // =====================================================
+    // 15. UPDATE SCHEDULE
+    // =====================================================
 
-        List<ScheduleTrain> overlappingSchedules =
-                scheduleRepository.findOverlappingSchedules(
-                        finalTrainId,
-                        finalStartTime,
-                        finalEndTime
+    if (reqDto.getTrainId() != null) {
+
+        schedule.setTrain(
+                finalTrain
+        );
+    }
+
+
+    if (reqDto.getDepartureStationId() != null) {
+
+        schedule.setDepartureStation(
+                finalDepartureStation
+        );
+    }
+
+
+    if (reqDto.getDestinationStationId() != null) {
+
+        schedule.setDestinationStation(
+                finalDestinationStation
+        );
+    }
+
+
+    if (reqDto.getJourneyStartTime() != null) {
+
+        schedule.setJourneyStartTime(
+                reqDto.getJourneyStartTime()
+        );
+    }
+
+
+    if (reqDto.getJourneyEstimatedEndTime() != null) {
+
+        schedule.setJourneyEstimatedEndTime(
+                reqDto.getJourneyEstimatedEndTime()
+        );
+    }
+
+
+    if (reqDto.getStatus() != null) {
+
+        schedule.setStatus(
+                reqDto.getStatus()
+        );
+    }
+
+
+    // =====================================================
+    // 16. SHIFT STATION TIMES
+    // =====================================================
+
+    if (journeyTimeChanged
+            && deltaMillis != 0) {
+
+
+        for (ScheduleTrainStation station :
+                scheduleStations) {
+
+
+            if (Boolean.TRUE.equals(
+                    station.getIsDeleted())) {
+
+                continue;
+            }
+
+
+            if (station.getArrivalTime() != null) {
+
+                station.setArrivalTime(
+
+                        new Date(
+                                station.getArrivalTime()
+                                        .getTime()
+                                        + deltaMillis
+                        )
                 );
+            }
 
-        for (ScheduleTrain existingSchedule : overlappingSchedules) {
 
-            if (!existingSchedule.getId().equals(schedule.getId())) {
+            if (station.getDepartureTime() != null) {
 
-                throw new Exception(
-                        "Train already has an overlapping schedule for this time"
+                station.setDepartureTime(
+
+                        new Date(
+                                station.getDepartureTime()
+                                        .getTime()
+                                        + deltaMillis
+                        )
                 );
             }
         }
-
-        if (train != null)
-            schedule.setTrain(train);
-
-        if (departureStation != null)
-            schedule.setDepartureStation(departureStation);
-
-        if (destinationStation != null)
-            schedule.setDestinationStation(destinationStation);
-
-        if (reqDto.getJourneyStartTime() != null)
-            schedule.setJourneyStartTime(
-                    reqDto.getJourneyStartTime());
-
-        if (reqDto.getJourneyEstimatedEndTime() != null)
-            schedule.setJourneyEstimatedEndTime(
-                    reqDto.getJourneyEstimatedEndTime());
-
-        if (reqDto.getStatus() != null)
-            schedule.setStatus(reqDto.getStatus());
-
-        scheduleRepository.save(schedule);
-
-        return true;
     }
+
+
+    // =====================================================
+    // 17. UPDATE BOOKING JOURNEY DATE
+    // =====================================================
+
+    if (journeyTimeChanged
+            && deltaMillis != 0) {
+
+
+        for (Bookings booking :
+                bookings) {
+
+
+            if (booking == null) {
+                continue;
+            }
+
+
+            if (booking.getJourneyDate() == null) {
+                continue;
+            }
+
+
+            booking.setJourneyDate(
+
+                    new Date(
+                            booking.getJourneyDate()
+                                    .getTime()
+                                    + deltaMillis
+                    )
+            );
+        }
+    }
+
+
+    // =====================================================
+    // 18. UPDATE TICKET SNAPSHOT
+    // =====================================================
+
+    if (journeyTimeChanged
+            && deltaMillis != 0) {
+
+
+        for (Bookings booking :
+                bookings) {
+
+
+            if (booking == null) {
+                continue;
+            }
+
+
+            if (booking.getPnr() == null
+                    || booking.getPnr().isBlank()) {
+
+                continue;
+            }
+
+
+            ticketService.updateTicketTimes(
+                    booking.getPnr(),
+                    deltaMillis
+            );
+        }
+    }
+
+
+    // =====================================================
+    // 19. SAVE SCHEDULE
+    // =====================================================
+
+    scheduleRepository.saveAndFlush(
+            schedule
+    );
+
+
+    // =====================================================
+    // 20. SAVE STATIONS
+    // =====================================================
+
+    if (!scheduleStations.isEmpty()) {
+
+        scheduleTrainStationRepo
+                .saveAllAndFlush(
+                        scheduleStations
+                );
+    }
+
+
+    // =====================================================
+    // 21. SAVE BOOKINGS
+    // =====================================================
+
+    if (!bookings.isEmpty()) {
+
+        bookingsRepo.saveAllAndFlush(
+                bookings
+        );
+    }
+
+
+    // =====================================================
+    // 22. CREATE EVENT + OUTBOX
+    //
+    // IMPORTANT:
+    //
+    // This does NOT send email.
+    //
+    // It only stores:
+    //
+    // RescheduleEvent
+    // +
+    // Outbox records
+    //
+    // Both are committed together with the schedule update.
+    // =====================================================
+
+    if (journeyTimeChanged) {
+
+        scheduleTrainRescheduleEventService
+                .createEventAndOutbox(
+
+                        schedule.getId(),
+
+                        oldStartTime,
+                        oldEndTime,
+
+                        finalStartTime,
+                        finalEndTime,
+
+                        "Schedule train time updated"
+                );
+    }
+
+
+    // =====================================================
+    // 23. COMMIT AFTER SUCCESSFUL RETURN
+    // =====================================================
+
+    return true;
+}
+ 
+
 
     // =====================================================
     // PERMANENT DELETE

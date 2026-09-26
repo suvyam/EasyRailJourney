@@ -18,8 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ScheduleTrainHistoryController {
 
-    private final ScheduleTrainHistoryService
-            scheduleTrainHistoryService;
+    private final ScheduleTrainHistoryService scheduleTrainHistoryService;
 
     @GetMapping("/schedule-train/{scheduleTrainId}")
      @PreAuthorize ("hasAuthority('READ_SCHEDULE_TRAIN_HISTORY')")

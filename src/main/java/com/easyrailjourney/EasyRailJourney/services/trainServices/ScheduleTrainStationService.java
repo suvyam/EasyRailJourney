@@ -602,4 +602,52 @@ public class ScheduleTrainStationService {
                         stationId,
                         stationSequence);
     }
+
+
+
+
+    @Transactional
+    public void archive(
+            ScheduleTrainStation station) {
+
+        ScheduleTrainStationHistory history =
+                new ScheduleTrainStationHistory();
+
+        history.setScheduleTrainId(
+                station.getScheduleTrain()
+                        .getId()
+        );
+
+        history.setStationId(
+                station.getStation()
+                        .getId()
+        );
+
+        history.setStationSequence(
+                station.getStationSequence()
+        );
+
+        history.setArrivalTime(
+                station.getArrivalTime()
+        );
+
+        history.setDepartureTime(
+                station.getDepartureTime()
+        );
+
+        history.setArchivedAt(
+                new Date()
+        );
+
+        scheduleTrainStationHistoryRepo.save(
+                history
+        );
+    }
+
+
+
+
+
+    
 }
+

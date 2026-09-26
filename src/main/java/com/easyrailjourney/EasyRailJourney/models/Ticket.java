@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -18,7 +19,11 @@ import lombok.Setter;
 @Entity
 public class Ticket extends BaseModel {
 
-    @OneToMany(mappedBy = "ticket")
+    @OneToMany(
+        mappedBy = "ticket",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
     @JsonManagedReference
     private List<TicketPassenger> ticketPassenger;
 

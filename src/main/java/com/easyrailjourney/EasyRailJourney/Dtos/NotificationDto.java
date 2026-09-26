@@ -19,4 +19,6 @@ public class NotificationDto {
     private Ticket ticket;
 
     private String pnr;
+
+    private String notificationKey;
 }

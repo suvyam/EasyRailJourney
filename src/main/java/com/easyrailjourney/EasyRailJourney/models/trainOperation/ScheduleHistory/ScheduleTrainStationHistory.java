@@ -25,10 +25,10 @@ public class ScheduleTrainStationHistory extends BaseModel {
     @Column(name = "stop_sequence", nullable = false)
     private Integer stationSequence;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Date arrivalTime;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Date departureTime;
 
     @Column(nullable = false)
